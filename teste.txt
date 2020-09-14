@@ -1,0 +1,9 @@
+/* Este eh o exemplo de um comentario*/
+
+int 1nro1 = 1;
+int nro2 = 2;
+int nro3 = nro1 + nro2;
+if(nro3 == 0) {
+    write(nro3);
+    write("ola");
+}
