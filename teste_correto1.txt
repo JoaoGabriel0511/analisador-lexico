@@ -1,0 +1,13 @@
+/* Este eh o exemplo de um comentario*/
+
+int escreveOla(){
+    return 3;
+}
+
+void main() {
+    int nro;
+    if ( true ) {
+        nro = escreveOla();
+    }
+    write(nro);
+}

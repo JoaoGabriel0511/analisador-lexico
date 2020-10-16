@@ -1,0 +1,10 @@
+void main ( ) {
+    vector cordenada1;
+    vector cordenada2;
+    vector cordenada3;
+    cordenada1 = < 2 , 2 >;
+    cordenada2 = < 2.34 , 34.2 >;
+    cordenada3 = cordenada1 + cordenada2;
+
+    write(cordenada3);
+}
