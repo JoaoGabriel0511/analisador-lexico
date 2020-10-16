@@ -1,5 +1,4 @@
 vector cordenada1 = < 2 , 2 >;
-@
 vector cordenada2 = < 2.34 , 34.2 >;
 vector cordenada3 = cordenada1 + cordenada2;
 
