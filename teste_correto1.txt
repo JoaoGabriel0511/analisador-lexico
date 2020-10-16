@@ -1,13 +1,9 @@
-/* Este eh o exemplo de um comentario*/
-
-int escreveOla(){
-    return 3;
-}
-
-void main() {
-    int nro;
-    if ( true ) {
-        nro = escreveOla();
+int nro;
+float nro2;
+int main(int nro3) {
+    int nro4;
+    nro4 = nro3 + nro2;
+    if(true) {
+        
     }
-    write(nro);
 }

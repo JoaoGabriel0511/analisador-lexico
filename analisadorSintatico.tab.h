@@ -90,7 +90,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 32 "analisadorSintatico.y" /* yacc.c:1909  */
+#line 35 "analisadorSintatico.y" /* yacc.c:1909  */
 
   char *string;
   struct node *node;
