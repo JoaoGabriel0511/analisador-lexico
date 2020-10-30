@@ -12,57 +12,25 @@ int current_line = 1;
 int tableSize = 0;
 
 struct Error {
-    char error_type[50];
+    char error_symbol;
     int line;
 };
 
-struct SymbolTableData {
-    char symbol[100];
-    int address;
-};
+struct Error error_array[500];
 
-struct SymbolTableData symbolTable[500];
-
-struct Error error;
-
-void printError(char text[]){
-    printf("------ERROR %d--------\n", error_cnt+1);
-    printf("Simbolo nao reconhecido: %s\n", text);
-    printf("Line: %d\n", error.line);
-    printf("----------------------\n");
-}
-
-int searchInTable(char symbol[]) {
-    int i = 0;
-    while(i < tableSize) {
-        if(strcmp(symbolTable[i].symbol, symbol) == 0) {
-            return symbolTable[i].address;
+void printError(){
+    if(error_cnt > 0) {
+        printf("------ERRORS LEXICOS: %d--------\n", error_cnt);
+        for(int i = 0; i < error_cnt; i++) {
+            printf("------ERROR--------\n");
+            printf("Simbolo nao reconhecido: %c\n", error_array[i].error_symbol);
+            printf("Line: %d\n", error_array[i].line);
+            printf("----------------------\n");
         }
-        i++;
-    }
-    strcpy(symbolTable[i].symbol, symbol);
-    symbolTable[i].address = i;
-    tableSize++;
-    return i;
-}
-
-void printTable() {
-    printf("\n");
-    printf("\n");
-    printf("\n");
-    printf("\n");
-    printf("SYMBOL TABLE\n");
-    int i = 0;
-    while(i < tableSize) {
-        printf("symbol (%s), endereco %d\n", symbolTable[i].symbol, symbolTable[i].address);
-        i++;
     }
 }
 
 %}
-
-%x COMMENT
-%x STRING
 
 EOL \n
 SEP [,.;:]
@@ -82,7 +50,6 @@ TYPE "int"|"float"|"char"|"vector"|"bool"|"void"
 IF "if"
 ELSE "else"
 WHILE "while"
-FOR "for"
 RETURN "return"
 READ "read"
 WRITE "write"
@@ -149,12 +116,6 @@ ID  {LETTER}({LETTER}|{DIGIT})*
     return WHILE;
 }
 
-{FOR} {
-    //printf("FOR (%s) SIZE %d\n", yytext, yyleng );
-    yylval.string = (char *) strdup(yytext);
-    return FOR;
-}
-
 {RETURN} {
     //printf("RETURN (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -191,54 +152,7 @@ ID  {LETTER}({LETTER}|{DIGIT})*
     return QUOTES;
 }
 
-"/*" {
-    //printf("COMMENT (%s)\n", yytext);
-    BEGIN(COMMENT);
-}
-
-<COMMENT>"*/" {
-    //printf("COMMENT (%s)\n", yytext);
-    BEGIN(INITIAL);
-}
-
-<COMMENT>\n {
-    current_line++;
-    BEGIN(INITIAL);
-}
-
-<COMMENT>. {
-    //printf("COMMENT (%s)\n", yytext);
-}
-
-<STRING>\" {
-    //printf("STRING (%s)\n", yytext);
-    BEGIN(INITIAL);
-    return STRING;
-}
-
-<STRING>\n {
-    current_line++;
-    BEGIN(INITIAL);
-}
-
-<STRING>\\\" {
-    BEGIN(INITIAL);
-}
-
-<STRING><<EOF>> {
-    ERRORS_COUNT++;
-    //printf("STRING (%s)\n", yytext);
-    BEGIN(INITIAL);
-    return STRING;
-}
-
-<STRING>. {
-    //printf("STRING (%s)\n", yytext);
-    return STRING;
-}
-
 {ID} {
-    int address = searchInTable(yytext);
     //printf("ID (%s), SIZE %d, symbol table address %d \n", yytext, yyleng, address );
     yylval.string = (char *) strdup(yytext);
     return ID;
@@ -338,8 +252,26 @@ ID  {LETTER}({LETTER}|{DIGIT})*
 " "* {
 }
 
-. {
+";" {
     return yytext[0];
+}
+
+"," {
+    return yytext[0];
+}
+
+":" {
+    return yytext[0];
+}
+
+"." {
+    return yytext[0];
+}
+
+. {
+    error_array[error_cnt].line = current_line;
+    error_array[error_cnt].error_symbol = yytext[0];
+    error_cnt++;
 }
 
 %%

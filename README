@@ -1,17 +1,23 @@
-## para compilar o program rode os seguintes comandos:
---------- flex -o src/lex.yy.c  src/lexico.l
---------- gcc src/lex.yy.c -ll -o src/tradutor
+## Requisitos minimos:
+ - bison 3.0.4
+ - flex 2.6.0
+ - gcc 5.4.0
+
+## para compilar o program rode o seguinte comando na pasta raiz:
+make
 
 ## para rodar o analisador dobre um arquivo texto rode:
---------- ./a.out <path_do_arquivo>
+--------- ./program.out <path_do_arquivo>
 
 
-## a gramatica utilizada eh listada em Analisador_150131992.pdf
+## a gramatica utilizada eh listada em Analisador_150131992.pdf(por falata de tempo a documentacao esta desatualizada em relacao ao analisador sintatico)
 
-## estao presentes na pasta quatro programas de exemplo, dois sem erros lexicos: teste_correto1.txt, teste_correto2.txt.
-E dois com erros lexicos: teste_errado1.txt, teste_errado2.txt.
+## estao presentes na pasta seis programas de exemplo, dois sem erros(sejam lexicos ou sintaticos): teste_correto1.txt, teste_correto2.txt.
+Dois com erros lexicos: teste_errado1_lexico.txt, teste_errado_lexico2.txt. E dois com erros sintaticos: teste_errado1_sintatico.txt, teste_errado_sintatico.txt
 
-## os codigos de exemplo com erro possuem erros relacionados a simbolos nao reconhecidos na gramatica.
-No teste_errado1.txt duas linha vao apresentar erro ao nao reconhecer "!", no teste_errado2.txt vai apresentar uma linha erro em uma linha com o simbolo "@".
+## os codigos de exemplo com erro lexico possuem erros relacionados a simbolos nao reconhecidos na gramatica.
+No teste_errado1_lexico.txt duas linha vao apresentar erro ao nao reconhecer "!", no teste_errado2_lexico.txt vai apresentar uma linha erro em uma linha com o simbolo "@".
 
- 
+## os codigos de exemplo com erro sinstatico possuem erro por tentarem declarar uma variavel e atribuir um valor a ela numa mesma linha,
+coisa que a linguagem nao suporta.
+

@@ -1,8 +1,6 @@
-/* Este eh o exemplo de um comentario*/
-
 int nro;
-int nro2;
-int nro3;
+int !nro2;
+int !nro3;
 int nro3 = nro1 + nro2;
 if(nro3 == 0) {
     write(nro3);

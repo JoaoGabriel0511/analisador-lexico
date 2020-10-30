@@ -1,1 +1,1 @@
-program:  analisador_lexico.l analisadorSintatico.y; bison -d analisadorSintatico.y; flex analisador_lexico.l; gcc analisadorSintatico.tab.c lex.yy.c -ll -o program.out
+program:  analisador_lexico.l analisadorSintatico.y; bison -d analisadorSintatico.y; flex analisador_lexico.l; gcc analisadorSintatico.tab.c -g -Wall lex.yy.c -ll -o program.out

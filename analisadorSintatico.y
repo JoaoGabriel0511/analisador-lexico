@@ -5,21 +5,39 @@
 %{
   #include <stdlib.h>
   #include <stdio.h>
+  #include "uthash.h"
 
   int yylex();
+  extern int current_line;
+  int tem_erro = 0;
+  extern void printError();
   void yyerror(const char* msg) {
-    fprintf(stderr, "%s\n", msg);
+    tem_erro = 1;
+    fprintf(stderr, "Erro sintatico encontrado na linha %d: %s\n", current_line, msg);
   }
   extern int yylex_destroy(void);
   extern FILE *yyin;
 
   struct node {
-    char *node_type; // "FUNCTION", "VARIABLE", "CODE_BLOCK"....
+    char *node_type;
     char *symbolName;
     char *symbolType;
     struct node *left;
     struct node *right;
   };
+
+  struct s_table_entry {
+    char* symbolName;
+    char* id;
+    char* var_type;
+    char* entry_type;
+    char* scope;
+    UT_hash_handle hh;
+  };
+
+  char* current_scope = "GLOBAL";
+
+  struct s_table_entry *symbol_table = NULL;
 
   struct node* syntax_tree = NULL;
   struct node* add_regular_node(char * node_type, struct node *left, struct node *right);
@@ -27,8 +45,11 @@
   struct node* add_operator_node(char * symbolName);
   struct node* add_value_node(char * symbolName);
   struct node* add_function_node(char * symbolType, char * symbolName, struct node *left, struct node *right);
+  char* concat(const char *s1, const char *s2);
+  void add_to_symbol_table(char* id, char* var_type, char* entry_type, char* scope);
   void gen_table_symbol(char * type, char * name);
   void print_tree(struct node * tree, int prof);
+  void print_s_table();
 
 %}
 
@@ -40,24 +61,20 @@
 %type <node> prog declaration declaration_list var_declaration func_declaration param params params_list
 %type <node> local_declarations statement_list compound_statement statement
 %type <node> expression_statement conditional_statement io_statement iteration_statement return_statement assing_statement vector_statement
-%type <node> expression var simple_expression op_expression term call args arg_list string
+%type <node> expression var simple_expression op_expression term call args arg_list
 %type <node> vector_param relop operators factor
 
 %token <string> ID
 %token <string> TYPE
-%token <string> WHILE IF ELSE RETURN WRITE READ FOR
+%token <string> WHILE IF ELSE RETURN WRITE READ
 %token <string> STRING INT FLOAT VECTOR
-%token <string> COMPARABLES
-%token <string> ADD SUB TIMES DIV OR AND ASSING
 %token <string> DISTANCE NORMALIZE
 %token <string> BOOLEAN
 %token <string> OPEN_PARENTESES CLOSE_PARENTESES OPEN_BRACKETS CLOSE_BRACKETS OPEN_CURLY CLOSE_CURLY
 %token <string> QUOTES
-
-%right ASSING
-%left CEQ CNE CLT CLE CGT CGE
-%left '*' '/'
-%left '+' '-'
+%right <string> ASSING
+%left <string> COMPARABLES
+%left <string> ADD SUB TIMES DIV OR AND
 
 %%
 
@@ -94,6 +111,7 @@ var_declaration:
   TYPE ID ';' {
     printf("var_declaration <- TYPE ID;\n");
     $$ = add_variable_node($1, $2);
+    add_to_symbol_table($2, $1, "VARIABLE", current_scope);
   }
 ;
 
@@ -101,6 +119,8 @@ func_declaration:
   TYPE ID OPEN_PARENTESES params CLOSE_PARENTESES compound_statement {
     printf("func_declaration <- TYPE ID (params) compound_statement;\n");
     $$ = add_function_node($1, $2, $4, $6);
+    add_to_symbol_table($2, $1, "FUNCTION", "GLOBAL");
+    current_scope = "GLOBAL";
   }
 ;
 
@@ -130,6 +150,7 @@ param:
   TYPE ID {
     printf("param <- TYPE ID\n");
     $$ = add_variable_node($1, $2);
+    add_to_symbol_table($2, $1, "VARIABLE", "-");
   }
 ;
 
@@ -146,6 +167,7 @@ local_declarations:
     $$ = add_regular_node("DECLARATION", $1, $2);
   }
   | {
+    current_scope = "-";
     printf("local_declarations <- \n");
     $$ = NULL;
   }
@@ -191,14 +213,14 @@ statement:
     printf("statement <- assing_statement\n");
     $$ = $1;
   }
+  | local_declarations {
+    printf("statement <- local_declaration\n");
+    $$ = $1;
+  }
 ;
 
 expression_statement:
- expression {
-   printf("expression_statement <- expression\n");
-   $$ = $1;
-  }
- | simple_expression {
+  simple_expression {
    printf("expression_statement <- simple_expression\n");
    $$ = $1;
   }
@@ -247,12 +269,6 @@ io_statement:
     struct node *aux = add_operator_node($1);
     $$ = add_regular_node("IO", $3, aux);
   }
-  | WRITE OPEN_PARENTESES QUOTES string QUOTES CLOSE_PARENTESES ';' {printf("io_statement <- write(quotes string quotes)\n");}
-;
-
-string:
-  string STRING {printf("string <- string STRING\n");}
-  | {} {printf("string <- \n");}
 ;
 
 vector_statement:
@@ -404,7 +420,7 @@ factor:
 ;
 
 call:
-  ID OPEN_PARENTESES args CLOSE_PARENTESES {
+  ID OPEN_PARENTESES args CLOSE_PARENTESES ';' {
     printf("call <- (args)\n");
     struct node *aux = add_function_node(NULL, $1, NULL, NULL);
     $$ = add_regular_node("CALL", aux, $3);
@@ -435,7 +451,6 @@ arg_list:
 %%
 
 struct node * add_regular_node(char * node_type, struct node *left, struct node *right){
-  printf("nao symbol\n");
   struct node* node = (struct node*)calloc(1, sizeof(struct node));
   node->node_type = node_type;
   node->left = left;
@@ -475,17 +490,54 @@ struct node* add_operator_node(char * symbolName) {
   return node;
 }
 
+void add_to_symbol_table(char* id, char* var_type, char* entry_type, char* scope) {
+  struct s_table_entry *s_table_entry;
+  char *auxid = concat("::", scope);
+  char *auxid2 = concat("::", entry_type);
+  char *identifier = concat(id, auxid);
+  identifier = concat(identifier, auxid2);
+  HASH_FIND_STR(symbol_table, identifier, s_table_entry);
+  if(s_table_entry == NULL) {
+    struct s_table_entry *s = (struct s_table_entry *)malloc(sizeof *s);
+    s->id = identifier;
+    s->symbolName = id;
+    s->var_type = var_type;
+    s->entry_type = entry_type;
+    s->scope = scope;
+    HASH_ADD_STR(symbol_table, id, s);
+    if(strcmp(entry_type, "FUNCTION") == 0) {
+      for(s=symbol_table; s != NULL; s=s->hh.next) {
+        if(strcmp(s->entry_type, "VARIABLE") == 0 && strcmp(s->scope, "-") == 0) {
+          s->scope = (char *) strdup(id);
+          char *auxid = concat("::", s->scope);
+          char *auxid2 = concat("::", s->entry_type);
+          char *identifier = concat(s->symbolName, auxid);
+          identifier = concat(identifier, auxid2);
+          s->id = identifier;
+        }
+      }
+    }
+  }
+}
+
+char* concat(const char *s1, const char *s2){
+  char *result = malloc(strlen(s1) + strlen(s2) + 1);
+  strcpy(result, s1);
+  strcat(result, s2);
+  return result;
+}
+
 struct node* add_value_node(char * symbolName) {
   struct node* node = (struct node*)calloc(1, sizeof(struct node));
   node->node_type = "VALUE";
   node->symbolName = symbolName;
-  if(symbolName == "BOLLEAN") {
+  if(strcmp(symbolName, "BOLLEAN") == 0) {
     node->symbolType = "bool";
-  } else if(symbolName == "INT") {
+  } else if(strcmp(symbolName, "INT") == 0) {
     node->symbolType = "int";
-  } else if(symbolName == "FLOAT") {
+  } else if(strcmp(symbolName,"FLOAT")  == 0) {
     node->symbolName = "float";
-  } else if(symbolName == "VECTOR") {
+  } else if(strcmp(symbolName, "VECTOR") == 0) {
     node->symbolName = "vector";
   }
   node->symbolType = NULL;
@@ -494,13 +546,30 @@ struct node* add_value_node(char * symbolName) {
   return node;
 }
 
+void print_s_table() {
+  struct s_table_entry *s;
+
+  printf("Tabela de Símbolos:\n");
+  for(s=symbol_table; s != NULL; s=s->hh.next) {
+    printf("id: %s | var_type: %s | s_node_type: %s | scope: %s\n", s->id, s->var_type, s->entry_type, s->scope);
+  }
+
+}
+
 void print_tree(struct node *tree, int prof) {
   int j;
   for(j=0;j<prof;j++){
     printf("  ");
   }
   if (tree) {
-    printf("| node_type: %s  |symbolName: %s | symbolType: %s |\n", tree->node_type, tree->symbolName, tree->symbolType);
+    printf("| node_type: %s  |", tree->node_type);
+    if(tree->symbolName != NULL) {
+      printf("symbolName: %s |", tree->symbolName);
+    }
+    if(tree->symbolType != NULL) {
+      printf("symbolType: %s |", tree->symbolType);
+    }
+    printf("\n");
     print_tree(tree->left, prof+1);
     print_tree(tree->right, prof+1);
   }
@@ -513,7 +582,11 @@ int main(int argc, char **argv) {
   else
       yyin = stdin;
   yyparse();
+  printError();
   print_tree(syntax_tree, 0);
+  if(tem_erro == 0) {
+    print_s_table();
+  }
   yylex_destroy();
   return 0;
 }

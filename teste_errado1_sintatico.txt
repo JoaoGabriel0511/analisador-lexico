@@ -1,0 +1,8 @@
+int nro;
+float nro2;
+int main(int nro3) {
+    int nro4;
+    nro4 = nro3 + nro2;
+    if(true)
+        write(nro4)
+}

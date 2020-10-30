@@ -53,35 +53,28 @@ extern int yydebug;
     RETURN = 263,
     WRITE = 264,
     READ = 265,
-    FOR = 266,
-    STRING = 267,
-    INT = 268,
-    FLOAT = 269,
-    VECTOR = 270,
-    COMPARABLES = 271,
-    ADD = 272,
-    SUB = 273,
-    TIMES = 274,
-    DIV = 275,
-    OR = 276,
-    AND = 277,
-    ASSING = 278,
-    DISTANCE = 279,
-    NORMALIZE = 280,
-    BOOLEAN = 281,
-    OPEN_PARENTESES = 282,
-    CLOSE_PARENTESES = 283,
-    OPEN_BRACKETS = 284,
-    CLOSE_BRACKETS = 285,
-    OPEN_CURLY = 286,
-    CLOSE_CURLY = 287,
-    QUOTES = 288,
-    CEQ = 289,
-    CNE = 290,
-    CLT = 291,
-    CLE = 292,
-    CGT = 293,
-    CGE = 294
+    STRING = 266,
+    INT = 267,
+    FLOAT = 268,
+    VECTOR = 269,
+    DISTANCE = 270,
+    NORMALIZE = 271,
+    BOOLEAN = 272,
+    OPEN_PARENTESES = 273,
+    CLOSE_PARENTESES = 274,
+    OPEN_BRACKETS = 275,
+    CLOSE_BRACKETS = 276,
+    OPEN_CURLY = 277,
+    CLOSE_CURLY = 278,
+    QUOTES = 279,
+    ASSING = 280,
+    COMPARABLES = 281,
+    ADD = 282,
+    SUB = 283,
+    TIMES = 284,
+    DIV = 285,
+    OR = 286,
+    AND = 287
   };
 #endif
 
@@ -90,12 +83,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 35 "analisadorSintatico.y" /* yacc.c:1909  */
+#line 56 "analisadorSintatico.y" /* yacc.c:1909  */
 
   char *string;
   struct node *node;
 
-#line 99 "analisadorSintatico.tab.h" /* yacc.c:1909  */
+#line 92 "analisadorSintatico.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
