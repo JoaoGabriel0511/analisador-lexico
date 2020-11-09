@@ -12,12 +12,16 @@ make
 
 ## a gramatica utilizada eh listada em Analisador_150131992.pdf(por falata de tempo a documentacao esta desatualizada em relacao ao analisador sintatico)
 
-## estao presentes na pasta seis programas de exemplo, dois sem erros(sejam lexicos ou sintaticos): teste_correto1.txt, teste_correto2.txt.
-Dois com erros lexicos: teste_errado1_lexico.txt, teste_errado_lexico2.txt. E dois com erros sintaticos: teste_errado1_sintatico.txt, teste_errado_sintatico.txt
+## estao presentes na pasta oito programas de exemplo, dois sem erros(sejam lexicos, sintaticos ou semanticos): teste_correto1.txt, teste_correto2.txt.
+Dois com erros lexicos: teste_errado1_lexico.txt, teste_errado_lexico2.txt. Dois com erros sintaticos: teste_errado1_sintatico.txt, teste_errado_sintatico.txt.
+E dois com erros semanticos: teste_errado1_semantico.txt, teste_errado2_semantico.
 
 ## os codigos de exemplo com erro lexico possuem erros relacionados a simbolos nao reconhecidos na gramatica.
 No teste_errado1_lexico.txt duas linha vao apresentar erro ao nao reconhecer "!", no teste_errado2_lexico.txt vai apresentar uma linha erro em uma linha com o simbolo "@".
 
 ## os codigos de exemplo com erro sinstatico possuem erro por tentarem declarar uma variavel e atribuir um valor a ela numa mesma linha,
 coisa que a linguagem nao suporta.
+
+## No arquivo teste_errado1_semantico.txt sao esperados dois tipos de erro o primeiro relacionado a falta de uma funcao main, e os outros dois relacionados a mismacth
+de tipos na operacao da linha 3, O arquivo teste_errado2_semantico.txt sao esperados dois tipos de erro semantico um mismacth de tipo no tipo passado para a funcao e um mismacth de tipo com o tipo de retorno da main.
 

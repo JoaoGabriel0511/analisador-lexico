@@ -564,6 +564,7 @@ int MAX_ERRORS = 500;
 int error_cnt = 0;
 int current_line = 1;
 int tableSize = 0;
+int tem_erro = 0;
 
 struct Error {
     char error_symbol;
@@ -572,19 +573,27 @@ struct Error {
 
 struct Error error_array[500];
 
+void yyerror(const char* msg) {
+    tem_erro = 1;
+    if(strstr(msg, "syntax") == NULL) {
+        fprintf(stderr, "Erro encontrado: %s\n", msg);
+    } else {
+        fprintf(stderr, "\n\n\n------ERRO SINTATICO:--------\nErro encontrado na linha %d: %s\n", current_line, msg);
+    }
+}
+
 void printError(){
     if(error_cnt > 0) {
-        printf("------ERRORS LEXICOS: %d--------\n", error_cnt);
+        printf("\n\n\n------ERROS LEXICOS: %d--------\n", error_cnt);
         for(int i = 0; i < error_cnt; i++) {
-            printf("------ERROR--------\n");
-            printf("Simbolo nao reconhecido: %c\n", error_array[i].error_symbol);
-            printf("Line: %d\n", error_array[i].line);
-            printf("----------------------\n");
+            char* msg =  (char *)malloc(100 * sizeof(char));
+            sprintf(msg, "Symbol not recognized: %c. line: %d\n", error_array[i].error_symbol, error_array[i].line);
+            yyerror(msg);
         }
     }
 }
 
-#line 588 "lex.yy.c"
+#line 597 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -802,10 +811,10 @@ YY_DECL
 		}
 
 	{
-#line 69 "analisador_lexico.l"
+#line 78 "analisador_lexico.l"
 
 
-#line 809 "lex.yy.c"
+#line 818 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -864,7 +873,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 71 "analisador_lexico.l"
+#line 80 "analisador_lexico.l"
 {
     //printf("TYPE (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -873,7 +882,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 77 "analisador_lexico.l"
+#line 86 "analisador_lexico.l"
 {
     //printf("INT (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -882,7 +891,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 83 "analisador_lexico.l"
+#line 92 "analisador_lexico.l"
 {
     //printf("FLOAT (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -891,7 +900,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 89 "analisador_lexico.l"
+#line 98 "analisador_lexico.l"
 {
     //printf("VECTOR (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -900,7 +909,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 95 "analisador_lexico.l"
+#line 104 "analisador_lexico.l"
 {
     //printf("BOOLEAN (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -909,7 +918,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 101 "analisador_lexico.l"
+#line 110 "analisador_lexico.l"
 {
     //printf("IF (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -918,7 +927,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 107 "analisador_lexico.l"
+#line 116 "analisador_lexico.l"
 {
     //printf("ELSE (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -927,7 +936,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 113 "analisador_lexico.l"
+#line 122 "analisador_lexico.l"
 {
     //printf("WHILE (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -936,7 +945,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 119 "analisador_lexico.l"
+#line 128 "analisador_lexico.l"
 {
     //printf("RETURN (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -945,7 +954,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 125 "analisador_lexico.l"
+#line 134 "analisador_lexico.l"
 {
     //printf("DISTANCE (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -954,7 +963,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 131 "analisador_lexico.l"
+#line 140 "analisador_lexico.l"
 {
     //printf("NORMALIZE (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -963,7 +972,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 137 "analisador_lexico.l"
+#line 146 "analisador_lexico.l"
 {
     //printf("WRITE (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -972,7 +981,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 143 "analisador_lexico.l"
+#line 152 "analisador_lexico.l"
 {
     //printf("READ (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -981,7 +990,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 149 "analisador_lexico.l"
+#line 158 "analisador_lexico.l"
 {
     //printf("QUOTES (%s)\n", yytext);
     BEGIN(STRING);
@@ -990,7 +999,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 155 "analisador_lexico.l"
+#line 164 "analisador_lexico.l"
 {
     //printf("ID (%s), SIZE %d, symbol table address %d \n", yytext, yyleng, address );
     yylval.string = (char *) strdup(yytext);
@@ -999,7 +1008,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 161 "analisador_lexico.l"
+#line 170 "analisador_lexico.l"
 {
     //printf("ADD (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1008,7 +1017,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 167 "analisador_lexico.l"
+#line 176 "analisador_lexico.l"
 {
     //printf("SUB (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1017,7 +1026,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 173 "analisador_lexico.l"
+#line 182 "analisador_lexico.l"
 {
     //printf("TIMES (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1026,7 +1035,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 179 "analisador_lexico.l"
+#line 188 "analisador_lexico.l"
 {
     //printf("DIV (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1035,7 +1044,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 185 "analisador_lexico.l"
+#line 194 "analisador_lexico.l"
 {
     //printf("ASSING (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1044,7 +1053,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 191 "analisador_lexico.l"
+#line 200 "analisador_lexico.l"
 {
     //printf("OR (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1053,7 +1062,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 197 "analisador_lexico.l"
+#line 206 "analisador_lexico.l"
 {
     //printf("AND (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1062,7 +1071,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 203 "analisador_lexico.l"
+#line 212 "analisador_lexico.l"
 {
     //printf("COMPARABLES (%s) SIZE %d\n", yytext, yyleng );
     yylval.string = (char *) strdup(yytext);
@@ -1071,7 +1080,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 209 "analisador_lexico.l"
+#line 218 "analisador_lexico.l"
 {
     //printf("OPEN_PARENTESES (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -1080,7 +1089,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 215 "analisador_lexico.l"
+#line 224 "analisador_lexico.l"
 {
     //printf("CLOSE_PARENTESES (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -1089,7 +1098,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 221 "analisador_lexico.l"
+#line 230 "analisador_lexico.l"
 {
     //printf("OPEN_BRACKETS (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -1098,7 +1107,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 227 "analisador_lexico.l"
+#line 236 "analisador_lexico.l"
 {
     //printf("CLOSE_BRACKETS (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -1107,7 +1116,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 233 "analisador_lexico.l"
+#line 242 "analisador_lexico.l"
 {
     //printf("OPEN_CURLY (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -1116,7 +1125,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 239 "analisador_lexico.l"
+#line 248 "analisador_lexico.l"
 {
     //printf("CLOSE_CURLY (%s) SIZE %d\n", yytext, yyleng);
     yylval.string = (char *) strdup(yytext);
@@ -1126,54 +1135,54 @@ YY_RULE_SETUP
 case 30:
 /* rule 30 can match eol */
 YY_RULE_SETUP
-#line 245 "analisador_lexico.l"
+#line 254 "analisador_lexico.l"
 {
     current_line++;
 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 249 "analisador_lexico.l"
+#line 258 "analisador_lexico.l"
 {
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 252 "analisador_lexico.l"
+#line 261 "analisador_lexico.l"
 {
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 255 "analisador_lexico.l"
+#line 264 "analisador_lexico.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 259 "analisador_lexico.l"
+#line 268 "analisador_lexico.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 263 "analisador_lexico.l"
+#line 272 "analisador_lexico.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 267 "analisador_lexico.l"
+#line 276 "analisador_lexico.l"
 {
     return yytext[0];
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 271 "analisador_lexico.l"
+#line 280 "analisador_lexico.l"
 {
     error_array[error_cnt].line = current_line;
     error_array[error_cnt].error_symbol = yytext[0];
@@ -1182,10 +1191,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 277 "analisador_lexico.l"
+#line 286 "analisador_lexico.l"
 ECHO;
 	YY_BREAK
-#line 1189 "lex.yy.c"
+#line 1198 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2186,6 +2195,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 277 "analisador_lexico.l"
+#line 286 "analisador_lexico.l"
 
 

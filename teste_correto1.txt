@@ -1,12 +1,12 @@
 int nro;
-float nro2;
+int nro2;
 
 void funcao(int nro) {
     float nro2;
     write(nro);
 }
 
-int main(int nro3) {
+void main(int nro3) {
     int nro4;
     nro4 = nro3 + nro2;
     if(true) {

@@ -1,0 +1,5 @@
+int func() {
+    int nro6;
+    nro6 = true + 1;
+    return 3;
+}

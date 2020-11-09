@@ -10,6 +10,7 @@ int MAX_ERRORS = 500;
 int error_cnt = 0;
 int current_line = 1;
 int tableSize = 0;
+int tem_erro = 0;
 
 struct Error {
     char error_symbol;
@@ -18,14 +19,22 @@ struct Error {
 
 struct Error error_array[500];
 
+void yyerror(const char* msg) {
+    tem_erro = 1;
+    if(strstr(msg, "syntax") == NULL) {
+        fprintf(stderr, "Erro encontrado: %s\n", msg);
+    } else {
+        fprintf(stderr, "\n\n\n------ERRO SINTATICO:--------\nErro encontrado na linha %d: %s\n", current_line, msg);
+    }
+}
+
 void printError(){
     if(error_cnt > 0) {
-        printf("------ERRORS LEXICOS: %d--------\n", error_cnt);
+        printf("\n\n\n------ERROS LEXICOS: %d--------\n", error_cnt);
         for(int i = 0; i < error_cnt; i++) {
-            printf("------ERROR--------\n");
-            printf("Simbolo nao reconhecido: %c\n", error_array[i].error_symbol);
-            printf("Line: %d\n", error_array[i].line);
-            printf("----------------------\n");
+            char* msg =  (char *)malloc(100 * sizeof(char));
+            sprintf(msg, "Symbol not recognized: %c. line: %d\n", error_array[i].error_symbol, error_array[i].line);
+            yyerror(msg);
         }
     }
 }
