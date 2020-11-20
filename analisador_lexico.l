@@ -40,7 +40,7 @@ void printError(){
 }
 
 %}
-
+%option noinput nounput
 EOL \n
 SEP [,.;:]
 OPEN_PARENTESES [(]
@@ -50,7 +50,7 @@ CLOSE_CURLY [}]
 OPEN_BRACKETS [\[]
 CLOSE_BRACKETS [\]]
 DIGIT [0-9]
-VECTOR <(" ")*{INT}(" ")*,(" ")*{INT}(" ")*>|<(" ")*{FLOAT}(" ")*,(" ")*{FLOAT}(" ")*>
+VECTOR <(" ")*{INT}(" ")*(,(" ")*{INT}(" ")*)*>|<(" ")*{FLOAT}(" ")*(,(" ")*{FLOAT}(" ")*)*>
 INT [-]?{DIGIT}+
 FLOAT [-]?{DIGIT}+"."{DIGIT}*
 BOOLEAN "true"|"false"
