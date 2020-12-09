@@ -7,6 +7,7 @@
   #include <stdio.h>
   #include "uthash.h"
   #include "utlist.h"
+  #define TAC_PATH "tac/"
 
   int yylex();
   extern int current_line;
@@ -68,11 +69,13 @@
   void print_s_table();
   void symbol_redeclaration_error(char* name, char* entry_type);
   void check_symbol_not_declared_error(char* name);
+  void generateTacFile(struct node* tree, char* fileName);
   void add_int_to_float_node(struct node * pointingNode, struct node * nodeToPoint);
   void add_float_to_int_node(struct node * pointingNode, struct node * nodeToPoint);
   void print_semantic_erros();
   void add_semantic_error(char *msg);
   void check_main_not_declared_error();
+  void generateTableInTac(FILE *tacFile);
   char* check_type_mismatch_error(struct node* first_symbol, struct node* second_symbol);
   void check_params_mismatch_error(char * functionName, struct param * paramsList);
   void check_function_return_mismatch_error(char * functionName, char * return_type, char * function_type);
@@ -838,6 +841,34 @@ void freeTabelaDeSimbolos(){
     freeParametrosDeFuncao(s->params_list);
     free(s);
   }
+}
+
+void generateTableInTac(FILE *tacFile) {
+  struct s_table_entry* s;
+  char aux[100];
+  fputs(".table\n", tacFile);
+  for(s=symbol_table; s != NULL; s=s->hh.next) {
+    if(s->entry_type != "FUNCTION"){
+      strcpy(aux, s->var_type);
+      strcat(aux, " ");
+      strcat(aux, s->symbolName);
+      strcat(aux, "\n");
+      fputs(aux, tacFile);
+    }
+  }
+}
+
+void generateTacFile(struct node* tree, char* fileName) {
+  FILE* tacFile;
+  char* filePath = concat(TAC_PATH, fileName);
+  tacFile = fopen(concat(filePath, ".tac"), "w");
+  if(tacFile == NULL) {
+    printf("Falha ao criar tac file.\n");
+    exit(EXIT_FAILURE);
+  }
+  generateTableInTac(tacFile);
+  fclose(tacFile);
+  printf("Arquivo .tac gerado em %s\n", filePath);
 }
 
 void freeArvore(struct node* n) {

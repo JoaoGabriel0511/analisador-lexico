@@ -68,6 +68,7 @@
   #include <stdio.h>
   #include "uthash.h"
   #include "utlist.h"
+  #define TAC_PATH "tac/"
 
   int yylex();
   extern int current_line;
@@ -129,18 +130,20 @@
   void print_s_table();
   void symbol_redeclaration_error(char* name, char* entry_type);
   void check_symbol_not_declared_error(char* name);
+  void generateTacFile(struct node* tree, char* fileName);
   void add_int_to_float_node(struct node * pointingNode, struct node * nodeToPoint);
   void add_float_to_int_node(struct node * pointingNode, struct node * nodeToPoint);
   void print_semantic_erros();
   void add_semantic_error(char *msg);
   void check_main_not_declared_error();
+  void generateTableInTac(FILE *tacFile);
   char* check_type_mismatch_error(struct node* first_symbol, struct node* second_symbol);
   void check_params_mismatch_error(char * functionName, struct param * paramsList);
   void check_function_return_mismatch_error(char * functionName, char * return_type, char * function_type);
   struct s_table_entry* find_symbol_in_table(char* symbolName, char* scope, char* entry_type);
 
 
-#line 144 "analisadorSintatico.tab.c" /* yacc.c:339  */
+#line 147 "analisadorSintatico.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -213,12 +216,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 83 "analisadorSintatico.y" /* yacc.c:355  */
+#line 86 "analisadorSintatico.y" /* yacc.c:355  */
 
   char *string;
   struct node *node;
 
-#line 222 "analisadorSintatico.tab.c" /* yacc.c:355  */
+#line 225 "analisadorSintatico.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -249,7 +252,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 253 "analisadorSintatico.tab.c" /* yacc.c:358  */
+#line 256 "analisadorSintatico.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -551,13 +554,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   109,   109,   117,   121,   128,   132,   139,   149,   175,
-     179,   186,   190,   201,   211,   220,   224,   232,   236,   240,
-     244,   248,   252,   256,   263,   270,   277,   282,   290,   297,
-     303,   309,   318,   323,   332,   337,   346,   350,   357,   377,
-     384,   394,   399,   406,   413,   428,   435,   439,   443,   447,
-     451,   455,   462,   466,   470,   474,   478,   482,   486,   493,
-     504,   508,   515,   519
+       0,   112,   112,   120,   124,   131,   135,   142,   152,   178,
+     182,   189,   193,   204,   214,   223,   227,   235,   239,   243,
+     247,   251,   255,   259,   266,   273,   280,   285,   293,   300,
+     306,   312,   321,   326,   335,   340,   349,   353,   360,   380,
+     387,   397,   402,   409,   416,   431,   438,   442,   446,   450,
+     454,   458,   465,   469,   473,   477,   481,   485,   489,   496,
+     507,   511,   518,   522
 };
 #endif
 
@@ -1501,53 +1504,53 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 109 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 112 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     check_main_not_declared_error();
     printf("prog <- declaration_list\n");
     syntax_tree = (yyvsp[0].node);
   }
-#line 1511 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1514 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 117 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 120 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("declaration_list <- declaration_list declation\n");
     (yyval.node) = add_regular_node("DECLARATION", (yyvsp[-1].node), (yyvsp[0].node));
   }
-#line 1520 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1523 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 121 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 124 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("declaration_list <- declaration\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1529 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1532 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 128 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 131 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("declaration <- func_declaration\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1538 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1541 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 132 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 135 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("declaration <- var_declaration\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1547 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1550 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 139 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 142 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("var_declaration <- TYPE ID\n");
     (yyval.node) = add_variable_node((yyvsp[-1].string), (yyvsp[0].string));
@@ -1555,11 +1558,11 @@ yyreduce:
     free((yyvsp[-1].string));
     free((yyvsp[0].string));
   }
-#line 1559 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1562 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 149 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 152 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("func_declaration <- TYPE ID (params) compound_statement\n");
     struct node *aux = add_function_node((yyvsp[-5].string), (yyvsp[-4].string), (yyvsp[-2].node), (yyvsp[0].node));
@@ -1583,38 +1586,38 @@ yyreduce:
     free((yyvsp[-4].string));
     (yyval.node) = aux;
   }
-#line 1587 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1590 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 175 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 178 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("params <- params_list\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1596 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1599 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 179 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 182 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("params <- \n");
     (yyval.node) = NULL;
   }
-#line 1605 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1608 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 186 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 189 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("params_list <- params_list, param\n");
     (yyval.node) = add_params_node((yyvsp[-2].node), (yyvsp[0].node));
   }
-#line 1614 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1617 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 190 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 193 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("params_list <- param\n");
     struct param * param = (struct param*)calloc(1, sizeof(struct param));
@@ -1623,11 +1626,11 @@ yyreduce:
     DL_APPEND((yyvsp[0].node)->paramsList, param);
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1627 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1630 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 201 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 204 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("param <- TYPE ID\n");
     (yyval.node) = add_variable_node((yyvsp[-1].string), (yyvsp[0].string));
@@ -1635,244 +1638,244 @@ yyreduce:
     free((yyvsp[-1].string));
     free((yyvsp[0].string));
   }
-#line 1639 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1642 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 211 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 214 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("compound_statement <- {statement_list return_statement }\n");
     struct node* aux = add_regular_node("COMPOUND", (yyvsp[-2].node), (yyvsp[-1].node));
     aux->symbolType = (yyvsp[-1].node)->symbolType;
     (yyval.node) = aux;
   }
-#line 1650 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1653 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 220 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 223 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement_list <- statement_list statement\n");
     (yyval.node) = add_regular_node("STATEMENT", (yyvsp[-1].node), (yyvsp[0].node));
   }
-#line 1659 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1662 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 224 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 227 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     current_scope = "-";
     printf("statement_list <- \n");
     (yyval.node) = NULL;
   }
-#line 1669 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1672 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 232 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 235 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- expression_statement;\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1678 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1681 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 236 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 239 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- conditional_statement\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1687 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1690 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 240 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 243 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- iteration_statement\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1696 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1699 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 244 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 247 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- io_statement;\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1705 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1708 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 248 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 251 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- vector_statement;\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1714 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1717 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 252 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 255 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- assing_statement;\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1723 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1726 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 256 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 259 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("statement <- declaration_statement;\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1732 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1735 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 263 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 266 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("declaration_statement <- var_declaration\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1741 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1744 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 270 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 273 "analisadorSintatico.y" /* yacc.c:1646  */
     {
    printf("expression_statement <- simple_expression\n");
    (yyval.node) = (yyvsp[0].node);
   }
-#line 1750 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1753 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 277 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 280 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("conditional_statement <- if(expression)compound_statement\n");
     struct node *aux = add_regular_node("STATEMENT", (yyvsp[0].node), NULL);
     (yyval.node) = add_regular_node("CONDITIONAL", (yyvsp[-2].node), aux);
   }
-#line 1760 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1763 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 282 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 285 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("conditional_statement <- if(expression)compound_statement eles compund_statement\n");
     struct node *aux = add_regular_node("STATEMENT", (yyvsp[-2].node), (yyvsp[0].node));
     (yyval.node) = add_regular_node("CONDITIONAL", (yyvsp[-4].node), aux);
   }
-#line 1770 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1773 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 290 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 293 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("iteration_statement <- while(expression)compound_statement\n");
     (yyval.node) = add_regular_node("ITERATOR", (yyvsp[-2].node), (yyvsp[0].node));
   }
-#line 1779 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1782 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 297 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 300 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("return_statement <- RETURN expression\n");
     struct node* aux = add_regular_node("RETURN", (yyvsp[-1].node), NULL);
     aux->symbolType = (yyvsp[-1].node)->symbolType;
     (yyval.node) = aux;
   }
-#line 1790 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1793 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 303 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 306 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("return_statement <- RETURN\n");
     struct node* aux = add_regular_node("RETURN", NULL, NULL);
     aux->symbolType = "void";
     (yyval.node) = aux;
   }
-#line 1801 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1804 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 309 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 312 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("return_statement <- \n");
     struct node* aux = add_regular_node("RETURN", NULL, NULL);
     aux->symbolType = "void";
     (yyval.node) = aux;
   }
-#line 1812 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1815 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 318 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 321 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("io_statement <- read(var)\n");
     struct node *aux = add_operator_node((yyvsp[-3].string));
     (yyval.node) = add_regular_node("IO", (yyvsp[-1].node), aux);
   }
-#line 1822 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1825 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 323 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 326 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("io_statement <- write(var)\n");
     printf("io_statement <- read(var)\n");
     struct node *aux = add_operator_node((yyvsp[-3].string));
     (yyval.node) = add_regular_node("IO", (yyvsp[-1].node), aux);
   }
-#line 1833 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1836 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 332 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 335 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("vector_statement <- normallize(vector_param)\n");
     struct node *aux = add_operator_node((yyvsp[-3].string));
     (yyval.node) = add_regular_node("VECTOR", (yyvsp[-1].node), aux);
   }
-#line 1843 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1846 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 337 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 340 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("vector_statement <- distance(vector_param, vector_param)\n");
     struct node *aux = add_operator_node((yyvsp[-5].string));
     struct node *aux2 = add_regular_node("VECTOR", (yyvsp[-3].node), (yyvsp[-1].node));
     (yyval.node) = add_regular_node("VECTOR", aux2, aux);
   }
-#line 1854 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1857 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 346 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 349 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("vector_param <- var\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1863 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1866 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 350 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 353 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("vector_param <- vector\n");
     (yyval.node) = add_value_node((yyvsp[0].string), "vector");
   }
-#line 1872 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1875 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 357 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 360 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("assing_expression <- var ASSING expression\n");
     struct node *aux = add_operator_node((yyvsp[-1].string));
@@ -1890,20 +1893,20 @@ yyreduce:
     (yyval.node) = aux;
     
   }
-#line 1894 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1897 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 377 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 380 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("expression <- op_expression\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1903 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1906 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 384 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 387 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("var <- ID\n");
     check_symbol_not_declared_error((yyvsp[0].string));
@@ -1911,39 +1914,39 @@ yyreduce:
     (yyval.node) = aux;
     free((yyvsp[0].string));
   }
-#line 1915 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1918 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 394 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 397 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("simple_expression <- op_expression relop op_expression\n");
     struct node *aux = add_regular_node("EXPRESSION", (yyvsp[-1].node), (yyvsp[0].node));
     (yyval.node) = add_regular_node("EXPRESSION", (yyvsp[-2].node), aux);
   }
-#line 1925 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1928 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 399 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 402 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("simple_expression <- op_expression\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1934 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1937 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 406 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 409 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("relop <- comparables\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 1943 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1946 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 413 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 416 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("op_expression <- op_expression operators factor\n");
     (yyvsp[-1].node)->right = (yyvsp[0].node);
@@ -1959,137 +1962,137 @@ yyreduce:
     }
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 1963 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1966 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 428 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 431 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("op_expression <- factor\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 1972 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1975 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 435 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 438 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("operators <- add\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 1981 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1984 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 439 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 442 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("operators <- sub\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 1990 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 1993 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 443 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 446 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("operators <- times\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 1999 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2002 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 447 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 450 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("operators <- div\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 2008 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2011 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 451 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 454 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("operators <- or\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 2017 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2020 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 455 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 458 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("operators <- and\n");
     (yyval.node) = add_operator_node((yyvsp[0].string));
   }
-#line 2026 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2029 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 462 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 465 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- (expression)\n");
     (yyval.node) = (yyvsp[-1].node);
   }
-#line 2035 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2038 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 466 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 469 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- var\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 2044 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2047 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 470 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 473 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- call\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 2053 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2056 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 474 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 477 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- INT\n");
     (yyval.node) = add_value_node((yyvsp[0].string), "int");
   }
-#line 2062 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2065 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 478 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 481 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- FLOAT\n");
     (yyval.node) = add_value_node((yyvsp[0].string), "float");
   }
-#line 2071 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2074 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 482 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 485 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- VECTOR\n");
     (yyval.node) = add_value_node((yyvsp[0].string), "vector");
   }
-#line 2080 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2083 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 486 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 489 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("factor <- BOOLEAN\n");
     (yyval.node) = add_value_node((yyvsp[0].string), "bool");
   }
-#line 2089 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2092 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 493 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 496 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("call <- (args)\n");
     check_symbol_not_declared_error((yyvsp[-3].string));
@@ -2098,38 +2101,38 @@ yyreduce:
     (yyval.node) = add_function_call_node(aux, (yyvsp[-1].node));
     free((yyvsp[-3].string));
   }
-#line 2102 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2105 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 504 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 507 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("args <- arg_list\n");
     (yyval.node) = (yyvsp[0].node);
   }
-#line 2111 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2114 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 508 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 511 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("args <- \n");
     (yyval.node) = NULL;
   }
-#line 2120 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2123 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 515 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 518 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("arg_list <- arg_list , expression\n");
     (yyval.node) = add_params_node((yyvsp[-2].node), (yyvsp[0].node));
   }
-#line 2129 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2132 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 519 "analisadorSintatico.y" /* yacc.c:1646  */
+#line 522 "analisadorSintatico.y" /* yacc.c:1646  */
     {
     printf("arg_list <- expression\n");
     struct param * param = (struct param*)calloc(1, sizeof(struct param));
@@ -2138,11 +2141,11 @@ yyreduce:
     DL_APPEND((yyvsp[0].node)->paramsList, param);
     (yyval.node) = (yyvsp[0].node);
   }
-#line 2142 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2145 "analisadorSintatico.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2146 "analisadorSintatico.tab.c" /* yacc.c:1646  */
+#line 2149 "analisadorSintatico.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2377,7 +2380,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 528 "analisadorSintatico.y" /* yacc.c:1906  */
+#line 531 "analisadorSintatico.y" /* yacc.c:1906  */
 
 
 struct node * add_regular_node(char * node_type, struct node *left, struct node *right){
@@ -2691,6 +2694,34 @@ void freeTabelaDeSimbolos(){
     freeParametrosDeFuncao(s->params_list);
     free(s);
   }
+}
+
+void generateTableInTac(FILE *tacFile) {
+  struct s_table_entry* s;
+  char aux[100];
+  fputs(".table\n", tacFile);
+  for(s=symbol_table; s != NULL; s=s->hh.next) {
+    if(s->entry_type != "FUNCTION"){
+      strcpy(aux, s->var_type);
+      strcat(aux, " ");
+      strcat(aux, s->symbolName);
+      strcat(aux, "\n");
+      fputs(aux, tacFile);
+    }
+  }
+}
+
+void generateTacFile(struct node* tree, char* fileName) {
+  FILE* tacFile;
+  char* filePath = concat(TAC_PATH, fileName);
+  tacFile = fopen(concat(filePath, ".tac"), "w");
+  if(tacFile == NULL) {
+    printf("Falha ao criar tac file.\n");
+    exit(EXIT_FAILURE);
+  }
+  generateTableInTac(tacFile);
+  fclose(tacFile);
+  printf("Arquivo .tac gerado em %s\n", filePath);
 }
 
 void freeArvore(struct node* n) {
