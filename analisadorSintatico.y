@@ -140,8 +140,6 @@ var_declaration:
     printf("var_declaration <- TYPE ID\n");
     $$ = add_variable_node($1, $2);
     add_to_symbol_table($2, $1, "VARIABLE", current_scope, NULL);
-    free($1);
-    free($2);
   }
 ;
 
@@ -165,8 +163,6 @@ func_declaration:
       add_to_symbol_table($2, $1, "FUNCTION", "GLOBAL", NULL);
     }
     current_scope = "GLOBAL";
-    free($1);
-    free($2);
     $$ = aux;
   }
 ;
@@ -202,8 +198,6 @@ param:
     printf("param <- TYPE ID\n");
     $$ = add_variable_node($1, $2);
     add_to_symbol_table($2, $1, "VARIABLE", "-", NULL);
-    free($1);
-    free($2);
   }
 ;
 
@@ -386,7 +380,6 @@ var:
     check_symbol_not_declared_error($1);
     struct node* aux = add_variable_node(NULL, $1);
     $$ = aux;
-    free($1);
   }
 ;
 
@@ -496,7 +489,6 @@ call:
     struct node *aux = add_function_node(NULL, $1, NULL, NULL);
     check_params_mismatch_error($1, $3->paramsList);
     $$ = add_function_call_node(aux, $3);
-    free($1);
   }
 ;
 
