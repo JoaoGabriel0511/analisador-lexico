@@ -817,51 +817,6 @@ void freeParametrosDeFuncao(struct param* param){
   free(param);
 }
 
-void freeTabelaDeSimbolos(){
-  struct s_table_entry *s, *tmp;
-
-  HASH_ITER(hh, symbol_table, s, tmp) {
-    HASH_DEL(symbol_table, s);
-    free(s->id);
-    free(s->symbolName);
-    free(s->var_type);
-    free(s->entry_type);
-    free(s->scope);
-    freeParametrosDeFuncao(s->params_list);
-    free(s);
-  }
-}
-
-void freeArvore(struct node* n) {
-  if(n != NULL) {
-    if(n->node_type != NULL) {
-      free(n->node_type);
-    }
-    if(n->symbolName != NULL) {
-      free(n->symbolName);
-    }
-    if(n->symbolType != NULL) {
-      free(n->symbolType);
-    }
-    freeParametrosDeFuncao(n->paramsList);
-    if(n->left != NULL) {
-      free(n->left);
-    }
-    if(n->right != NULL) {
-      free(n->right);
-    }
-    free(n);
-  }
-}
-
-void freeSemanticErros(struct semantic_error_msg* s) {
-  if(s == NULL) return;
-  free(s->msg);
-  freeSemanticErros(s->next);
-  free(s);
-}
-
-
 int main(int argc, char **argv) {
   ++argv, --argc;
   if(argc > 0)
@@ -877,9 +832,5 @@ int main(int argc, char **argv) {
   print_s_table();
   print_semantic_erros();
   yylex_destroy();
-  freeTabelaDeSimbolos();
-  freeArvore(syntax_tree);
-  freeSemanticErros(semantic_error_table);
-  free(current_scope);
   return 0;
 }
