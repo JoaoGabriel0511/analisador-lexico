@@ -143,8 +143,6 @@ var_declaration:
     printf("var_declaration <- TYPE ID\n");
     $$ = add_variable_node($1, $2);
     add_to_symbol_table($2, $1, "VARIABLE", current_scope, NULL);
-    free($1);
-    free($2);
   }
 ;
 
@@ -168,8 +166,6 @@ func_declaration:
       add_to_symbol_table($2, $1, "FUNCTION", "GLOBAL", NULL);
     }
     current_scope = "GLOBAL";
-    free($1);
-    free($2);
     $$ = aux;
   }
 ;
@@ -205,8 +201,6 @@ param:
     printf("param <- TYPE ID\n");
     $$ = add_variable_node($1, $2);
     add_to_symbol_table($2, $1, "VARIABLE", "-", NULL);
-    free($1);
-    free($2);
   }
 ;
 
@@ -389,7 +383,6 @@ var:
     check_symbol_not_declared_error($1);
     struct node* aux = add_variable_node(NULL, $1);
     $$ = aux;
-    free($1);
   }
 ;
 
@@ -499,7 +492,6 @@ call:
     struct node *aux = add_function_node(NULL, $1, NULL, NULL);
     check_params_mismatch_error($1, $3->paramsList);
     $$ = add_function_call_node(aux, $3);
-    free($1);
   }
 ;
 
@@ -820,29 +812,6 @@ void add_semantic_error(char *msg) {
   DL_APPEND(semantic_error_table, s);
 }
 
-void freeParametrosDeFuncao(struct param* param){
-  if(param == NULL) return;
-  freeParametrosDeFuncao(param->next);
-  free(param->paramName);
-  free(param->paramType);
-  free(param);
-}
-
-void freeTabelaDeSimbolos(){
-  struct s_table_entry *s, *tmp;
-
-  HASH_ITER(hh, symbol_table, s, tmp) {
-    HASH_DEL(symbol_table, s);
-    free(s->id);
-    free(s->symbolName);
-    free(s->var_type);
-    free(s->entry_type);
-    free(s->scope);
-    freeParametrosDeFuncao(s->params_list);
-    free(s);
-  }
-}
-
 void generateTableInTac(FILE *tacFile) {
   struct s_table_entry* s;
   char aux[100];
@@ -871,36 +840,6 @@ void generateTacFile(struct node* tree, char* fileName) {
   printf("Arquivo .tac gerado em %s\n", filePath);
 }
 
-void freeArvore(struct node* n) {
-  if(n != NULL) {
-    if(n->node_type != NULL) {
-      free(n->node_type);
-    }
-    if(n->symbolName != NULL) {
-      free(n->symbolName);
-    }
-    if(n->symbolType != NULL) {
-      free(n->symbolType);
-    }
-    freeParametrosDeFuncao(n->paramsList);
-    if(n->left != NULL) {
-      free(n->left);
-    }
-    if(n->right != NULL) {
-      free(n->right);
-    }
-    free(n);
-  }
-}
-
-void freeSemanticErros(struct semantic_error_msg* s) {
-  if(s == NULL) return;
-  free(s->msg);
-  freeSemanticErros(s->next);
-  free(s);
-}
-
-
 int main(int argc, char **argv) {
   ++argv, --argc;
   if(argc > 0)
@@ -916,9 +855,5 @@ int main(int argc, char **argv) {
   print_s_table();
   print_semantic_erros();
   yylex_destroy();
-  freeTabelaDeSimbolos();
-  freeArvore(syntax_tree);
-  freeSemanticErros(semantic_error_table);
-  free(current_scope);
   return 0;
 }

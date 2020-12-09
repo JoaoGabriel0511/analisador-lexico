@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "analisadorSintatico.tab.h"
 
 int ERRORS_COUNT = 0;
@@ -39,6 +40,7 @@ void printError(){
 }
 
 %}
+%option noinput nounput
 EOL \n
 SEP [,.;:]
 OPEN_PARENTESES [(]
