@@ -2662,14 +2662,6 @@ void add_semantic_error(char *msg) {
   DL_APPEND(semantic_error_table, s);
 }
 
-void freeParametrosDeFuncao(struct param* param){
-  if(param == NULL) return;
-  freeParametrosDeFuncao(param->next);
-  free(param->paramName);
-  free(param->paramType);
-  free(param);
-}
-
 int main(int argc, char **argv) {
   ++argv, --argc;
   if(argc > 0)
