@@ -1,8 +1,7 @@
 .table
-_GLOBAL nro_GLOBAL_VARIABLE
-_FUNCTION nro2_GLOBAL_VARIABLE
-{ )_funcao_VARIABLE
-( write_funcao_VARIABLE
-{ )_main_VARIABLE
-= ÐnI§U_main_VARIABLE
-_GLOBAL }_main_VARIABLE
+int a_main_VARIABLE
+.code
+jump main
+main:
+mov a_main_VARIABLE, 1
+return a_main_VARIABLE

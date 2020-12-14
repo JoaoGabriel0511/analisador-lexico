@@ -50,6 +50,7 @@
   int semantic_erro_count = 0;
 
   char* current_scope = "GLOBAL";
+  char* resolveSyntaxTreeScope = "GLOBAL";
 
   struct s_table_entry *symbol_table = NULL;
   struct semantic_error_msg *semantic_error_table = NULL;
@@ -65,7 +66,7 @@
   char* concat(const char *s1, const char *s2);
   void add_to_symbol_table(char* id, char* var_type, char* entry_type, char* scope, struct param* params_list);
   void gen_table_symbol(char * type, char * name);
-  void print_tree(struct node * tree, int prof);
+  void print_tree(struct node * tree, int prof, char side);
   void print_s_table();
   void symbol_redeclaration_error(char* name, char* entry_type);
   void check_symbol_not_declared_error(char* name);
@@ -594,8 +595,8 @@ struct node* add_params_node(struct node* params_list_node, struct node* param_n
 
 struct s_table_entry* find_symbol_in_table(char* symbolName, char* scope, char* entry_type) {
   struct s_table_entry *s_table_entry;
-  char *auxid = concat("::", scope);
-  char *auxid2 = concat("::", entry_type);
+  char *auxid = concat("_", scope);
+  char *auxid2 = concat("_", entry_type);
   char *identifier = concat(symbolName, auxid);
   identifier = concat(identifier, auxid2);
   HASH_FIND_STR(symbol_table, identifier, s_table_entry);
@@ -604,8 +605,8 @@ struct s_table_entry* find_symbol_in_table(char* symbolName, char* scope, char* 
 
 void add_to_symbol_table(char* id, char* var_type, char* entry_type, char* scope, struct param* params_list) {
   struct s_table_entry *s_table_entry;
-  char *auxid = concat("::", scope);
-  char *auxid2 = concat("::", entry_type);
+  char *auxid = concat("_", scope);
+  char *auxid2 = concat("_", entry_type);
   char *identifier = concat(id, auxid);
   identifier = concat(identifier, auxid2);
   HASH_FIND_STR(symbol_table, identifier, s_table_entry);
@@ -630,8 +631,8 @@ void add_to_symbol_table(char* id, char* var_type, char* entry_type, char* scope
           new_s->symbolName = s->symbolName;
           new_s->var_type = s->var_type;
           new_s->entry_type = s->entry_type;
-          char *auxid = concat("::", new_s->scope);
-          char *auxid2 = concat("::", new_s->entry_type);
+          char *auxid = concat("_", new_s->scope);
+          char *auxid2 = concat("_", new_s->entry_type);
           char *identifier = concat(new_s->symbolName, auxid);
           identifier = concat(identifier, auxid2);
           new_s->id = identifier;
@@ -725,7 +726,7 @@ void print_semantic_erros() {
   }
 }
 
-void print_tree(struct node *tree, int prof) {
+void print_tree(struct node *tree, int prof, char side) {
   int j;
   if (tree) {
     for(j=0;j<prof;j++){
@@ -738,9 +739,10 @@ void print_tree(struct node *tree, int prof) {
     if(tree->symbolType != NULL) {
       printf("symbolType: %s |", tree->symbolType);
     }
+    printf(" %c |", side);
     printf("\n");
-    print_tree(tree->left, prof+1);
-    print_tree(tree->right, prof+1);
+    print_tree(tree->left, prof+1, 'l');
+    print_tree(tree->right, prof+1, 'r');
   }
 }
 
@@ -817,14 +819,78 @@ void generateTableInTac(FILE *tacFile) {
   char aux[100];
   fputs(".table\n", tacFile);
   for(s=symbol_table; s != NULL; s=s->hh.next) {
-    if(strcmp(s->entry_type, "FUNCTION") == 0){
+    if(strcmp(s->entry_type, "FUNCTION") != 0){
       strcpy(aux, s->var_type);
       strcat(aux, " ");
-      strcat(aux, s->symbolName);
+      strcat(aux, s->id);
       strcat(aux, "\n");
       fputs(aux, tacFile);
     }
   }
+}
+
+char* generateInstruction(char* instruction, char* arg1, char* arg2, char* arg3) {
+  char *aux = (char*)malloc(50* sizeof(char));
+  strcpy(aux, instruction);
+  if(arg1 != NULL){
+    strcat(aux, " ");
+    strcat(aux, arg1);
+    if(arg2 != NULL){
+      strcat(aux, ", ");
+      strcat(aux, arg2);
+      if(arg3 != NULL){
+        strcat(aux, ", ");
+        strcat(aux, arg3);
+      }
+    }
+  }
+  strcat(aux, "\n");
+  return aux;
+}
+
+void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
+  char *aux = NULL;
+  if(tree) {
+    if(strcmp(tree->node_type, "FUNCTION") == 0) {
+      resolveSyntaxTreeScope = tree->symbolName;
+      aux = generateInstruction(concat(tree->symbolName, ":"), NULL, NULL, NULL);
+      struct param * param;
+      struct s_table_entry * s = find_symbol_in_table(tree->symbolName, "GLOBAL", tree->node_type);
+      LL_FOREACH(s->params_list, param) {
+        char *paramId = concat("_", tree->symbolName);
+        paramId = concat(paramId, "_VARIABLE");
+        paramId = concat(param->paramName, paramId);
+        strcat(aux, generateInstruction("pop", paramId, NULL, NULL));
+      }
+    } else if(strcmp(tree->node_type, "OPERATOR") == 0) {
+      if(strcmp(tree->symbolName, "=") == 0) {
+        struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
+        if(strcmp(tree->right->node_type, "VALUE") == 0) {
+          aux = generateInstruction("mov", s->id, tree->right->symbolName, NULL);
+        }
+      }
+    } else if(strcmp(tree->node_type, "RETURN") == 0) {
+      if(strcmp(tree->symbolType, "void") != 0) {
+        if(strcmp(tree->left->node_type, "VARIABLE") == 0){
+          struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
+          aux = generateInstruction("return", s->id, NULL, NULL);
+        } else if(strcmp(tree->left->node_type, "VALUE") == 0){
+          aux = generateInstruction("return", tree->left->symbolName, NULL, NULL);
+        }
+      }
+      resolveSyntaxTreeScope = "GLOBAL";
+    }
+    if(aux != NULL){
+      fputs(aux, tacFile);
+    }
+    resolveSyntaxTree(tacFile, tree->left);
+    resolveSyntaxTree(tacFile, tree->right);
+  }
+}
+
+void generateCodeInTac(FILE *tacFile, struct node* tree) {
+  fputs(".code\njump main\n", tacFile);
+  resolveSyntaxTree(tacFile, tree);
 }
 
 void generateTacFile(struct node* tree, char* fileName) {
@@ -836,6 +902,7 @@ void generateTacFile(struct node* tree, char* fileName) {
     exit(EXIT_FAILURE);
   }
   generateTableInTac(tacFile);
+  generateCodeInTac(tacFile, tree);
   fclose(tacFile);
   printf("Arquivo .tac gerado em %s\n", filePath);
 }
@@ -850,10 +917,11 @@ int main(int argc, char **argv) {
   printError();
   printf("\n\n\n");
   printf("..........ÁRVORE SINTÁTICA..........:\n");
-  print_tree(syntax_tree, 0);
+  print_tree(syntax_tree, 0, 'n');
   printf("\n\n\n");
   print_s_table();
   print_semantic_erros();
+  generateTacFile(syntax_tree, "teste");
   yylex_destroy();
   return 0;
 }
