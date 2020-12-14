@@ -2,4 +2,5 @@ void main () {
   int a;
   a = 1;
   write(a);
+  write(3);
 }

@@ -318,7 +318,7 @@ io_statement:
     struct node *aux = add_operator_node($1);
     $$ = add_regular_node("IO", $3, aux);
   }
-  | WRITE OPEN_PARENTESES var CLOSE_PARENTESES {
+  | WRITE OPEN_PARENTESES expression CLOSE_PARENTESES {
     printf("io_statement <- write(var)\n");
     printf("io_statement <- read(var)\n");
     struct node *aux = add_operator_node($1);
@@ -870,7 +870,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         }
       }
     } else if(strcmp(tree->node_type, "RETURN") == 0) {
-      if(strcmp(tree->symbolType, "void") != 0) {
+      if(strcmp(tree->symbolType, "void") != 0 && strcmp(resolveSyntaxTreeScope, "main") != 0) {
         if(strcmp(tree->left->node_type, "VARIABLE") == 0){
           struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
           aux = generateInstruction("return", s->id, NULL, NULL);
@@ -884,6 +884,8 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
           struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
           aux = generateInstruction("println", s->id, NULL, NULL);
+        } else if(strcmp(tree->left->node_type, "VALUE") == 0) {
+          aux = generateInstruction("println", tree->left->symbolName, NULL, NULL);
         }
       }
     }
