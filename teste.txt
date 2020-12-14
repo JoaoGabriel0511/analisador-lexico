@@ -1,6 +1,6 @@
 void main () {
   int a;
-  a = 2 + 3 - 2;
+  a = 2 + 3 - 2 * 7 / 2;
   write(a);
   write(3);
 }

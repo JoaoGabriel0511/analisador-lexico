@@ -5,6 +5,8 @@ jump main
 main:
 add $0, 3, 2
 sub $0, $0, 2
+mul $0, $0, 7
+div $0, $0, 2
 mov a_main_VARIABLE, $0
 println a_main_VARIABLE
 println 3
