@@ -2728,6 +2728,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
           aux = generateInstruction("mov", s->id, s2->id, NULL);
         } else if(strcmp(tree->right->node_type, "OPERATOR") == 0) {
           aux = generateAritmeticOperation(tree->right);
+          aux = concat(aux, generateInstruction("mov", tree->left->symbolName, "$0", NULL));
         }
       }
     } else if(strcmp(tree->node_type, "RETURN") == 0) {
