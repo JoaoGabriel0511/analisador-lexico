@@ -17,3 +17,4 @@ mov c_main_VARIABLE, $0
 println a_main_VARIABLE
 println 3
 println b_main_VARIABLE
+println c_main_VARIABLE
