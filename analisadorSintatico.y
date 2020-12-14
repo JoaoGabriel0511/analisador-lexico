@@ -81,7 +81,11 @@
   void check_params_mismatch_error(char * functionName, struct param * paramsList);
   void check_function_return_mismatch_error(char * functionName, char * return_type, char * function_type);
   struct s_table_entry* find_symbol_in_table(char* symbolName, char* scope, char* entry_type);
-
+  void resolveSyntaxTree(FILE *tacFile, struct node* tree);
+  char* generateInstruction(char* instruction, char* arg1, char* arg2, char* arg3);
+  void generateCodeInTac(FILE *tacFile, struct node* tree);
+  char* generateAritmeticOperation(struct node* tree);
+  char* generateOperator(char* operator);
 %}
 
 %union {
@@ -367,7 +371,6 @@ assing_statement:
       check_type_mismatch_error(aux->left, aux->right);
     }
     $$ = aux;
-    
   }
 ;
 
@@ -516,7 +519,7 @@ arg_list:
     printf("arg_list <- expression\n");
     struct param * param = (struct param*)calloc(1, sizeof(struct param));
     param->paramType = $1->symbolType;
-    param->paramName = $1->symbolName; 
+    param->paramName = $1->symbolName;
     DL_APPEND($1->paramsList, param);
     $$ = $1;
   }
@@ -867,6 +870,11 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
         if(strcmp(tree->right->node_type, "VALUE") == 0) {
           aux = generateInstruction("mov", s->id, tree->right->symbolName, NULL);
+        } else if(strcmp(tree->right->node_type, "VARIABLE") == 0) {
+          struct s_table_entry *s2 = find_symbol_in_table(tree->right->symbolName, resolveSyntaxTreeScope, tree->right->node_type);
+          aux = generateInstruction("mov", s->id, s2->id, NULL);
+        } else if(strcmp(tree->right->node_type, "OPERATOR") == 0) {
+          aux = generateAritmeticOperation(tree->right);
         }
       }
     } else if(strcmp(tree->node_type, "RETURN") == 0) {
@@ -895,6 +903,39 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
     resolveSyntaxTree(tacFile, tree->left);
     resolveSyntaxTree(tacFile, tree->right);
   }
+}
+
+char* generateOperator(char* operator) {
+  if(strcmp(operator, "+") == 0) {
+    return "add ";
+  } else if(strcmp(operator, "-") == 0){
+    return "sub ";
+  } else if(strcmp(operator, "*") == 0){
+    return "mul ";
+  } else if(strcmp(operator, "/") == 0){
+    return "div ";
+  }
+  return "";
+}
+
+char* generateAritmeticOperation(struct node* tree) {
+  char *aux = "";
+  if(strcmp(tree->left->node_type, "VALUE") == 0) {
+    aux = generateOperator(tree->symbolName);
+    aux = concat(aux, "$0, ");
+    aux = concat(aux, concat(tree->right->symbolName, ", "));
+    aux = concat(aux, tree->left->symbolName);
+    aux = concat(aux, "\n");
+  } else if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
+
+  } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+    aux = generateAritmeticOperation(tree->left);
+    aux = concat(aux, generateOperator(tree->symbolName));
+    aux = concat(aux, "$0, $0, ");
+    aux = concat(aux, tree->right->symbolName);
+    aux = concat(aux, "\n");
+  }
+  return aux;
 }
 
 void generateCodeInTac(FILE *tacFile, struct node* tree) {

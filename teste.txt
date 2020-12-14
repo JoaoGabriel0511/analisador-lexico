@@ -1,6 +1,6 @@
 void main () {
   int a;
-  a = 1;
+  a = 2 + 3 - 2;
   write(a);
   write(3);
 }
