@@ -86,6 +86,7 @@
   void generateCodeInTac(FILE *tacFile, struct node* tree);
   char* generateAritmeticOperation(struct node* tree);
   char* generateOperator(char* operator);
+  char* getValueOrVariable(struct node* tree);
 %}
 
 %union {
@@ -919,21 +920,29 @@ char* generateOperator(char* operator) {
   return "";
 }
 
+char* getValueOrVariable(struct node* tree) {
+  if(strcmp(tree->node_type, "VARIABLE") == 0) {
+    struct s_table_entry *s = find_symbol_in_table(tree->symbolName, resolveSyntaxTreeScope, tree->node_type);
+    return s->id;
+  } else if(strcmp(tree->node_type, "VALUE") == 0){
+    return tree->symbolName;
+  }
+  return "";
+}
+
 char* generateAritmeticOperation(struct node* tree) {
   char *aux = "";
-  if(strcmp(tree->left->node_type, "VALUE") == 0) {
-    aux = generateOperator(tree->symbolName);
-    aux = concat(aux, "$0, ");
-    aux = concat(aux, concat(tree->right->symbolName, ", "));
-    aux = concat(aux, tree->left->symbolName);
-    aux = concat(aux, "\n");
-  } else if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
-
-  } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+  if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
     aux = generateAritmeticOperation(tree->left);
     aux = concat(aux, generateOperator(tree->symbolName));
     aux = concat(aux, "$0, $0, ");
-    aux = concat(aux, tree->right->symbolName);
+    aux = concat(aux, getValueOrVariable(tree->right));
+    aux = concat(aux, "\n");
+  } else {
+    aux = generateOperator(tree->symbolName);
+    aux = concat(aux, "$0, ");
+    aux = concat(aux, concat(getValueOrVariable(tree->right), ", "));
+    aux = concat(aux, getValueOrVariable(tree->left));
     aux = concat(aux, "\n");
   }
   return aux;
