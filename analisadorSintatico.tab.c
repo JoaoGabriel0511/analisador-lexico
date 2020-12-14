@@ -2732,6 +2732,13 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         }
       }
       resolveSyntaxTreeScope = "GLOBAL";
+    } else if(strcmp(tree->node_type, "IO") == 0) {
+      if(strcmp(tree->right->symbolName, "write") == 0) {
+        if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
+          struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
+          aux = generateInstruction("println", s->id, NULL, NULL);
+        }
+      }
     }
     if(aux != NULL){
       fputs(aux, tacFile);

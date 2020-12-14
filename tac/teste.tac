@@ -4,4 +4,4 @@ int a_main_VARIABLE
 jump main
 main:
 mov a_main_VARIABLE, 1
-return a_main_VARIABLE
+println a_main_VARIABLE
