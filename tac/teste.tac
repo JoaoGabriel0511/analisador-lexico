@@ -17,5 +17,4 @@ param 1
 param 2
 param 3
 call sum
-pop a_main_VARIABLE
 println a_main_VARIABLE
