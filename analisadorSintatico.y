@@ -933,11 +933,11 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
             char* label = getLabel();
             char* label2 = getLabel();
             aux = generateInstruction("brz", label, getValueOrVariable(tree->left), NULL);
-            aux = concat(aux, generateInstruction("println", "\"true\"", NULL, NULL));
+            aux = concat(aux, generateInstruction("println", "\'T\'", NULL, NULL));
             aux = concat(aux, generateInstruction("jump", label2, NULL, NULL));
             aux = concat(aux, label);
             aux = concat(aux, ":\n");
-            aux = concat(aux, generateInstruction("println", "\"false\"", NULL, NULL));
+            aux = concat(aux, generateInstruction("println", "\'F\'", NULL, NULL));
             aux = concat(aux, label2);
             aux = concat(aux, ":\n");
           } else {
