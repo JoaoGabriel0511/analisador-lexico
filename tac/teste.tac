@@ -1,5 +1,5 @@
 .table
-bool a_main_VARIABLE
+int a_main_VARIABLE
 .code
 jump main
 main:
