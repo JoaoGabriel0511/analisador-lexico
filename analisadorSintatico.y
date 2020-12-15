@@ -1003,7 +1003,7 @@ char* generateAritmeticOperation(struct node* tree) {
 }
 
 void generateCodeInTac(FILE *tacFile, struct node* tree) {
-  fputs(".code\njump main\n", tacFile);
+  fputs(".code\ncall main\n", tacFile);
   resolveSyntaxTree(tacFile, tree);
 }
 
