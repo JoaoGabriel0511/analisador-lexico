@@ -2774,17 +2774,19 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         }
       }
     } else if(strcmp(tree->node_type, "RETURN") == 0) {
-      if(strcmp(tree->symbolType, "void") == 0) {
-        aux = generateInstruction("return", NULL, NULL, NULL);
-      } else {
-        if(strcmp(tree->left->node_type, "VARIABLE") == 0){
-          struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
-          aux = generateInstruction("return", s->id, NULL, NULL);
-        } else if(strcmp(tree->left->node_type, "VALUE") == 0){
-          aux = generateInstruction("return", tree->left->symbolName, NULL, NULL);
-        } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
-          aux = generateAritmeticOperation(tree->left);
-          aux = concat(aux, generateInstruction("return", "$0", NULL, NULL));
+      if(strcmp(resolveSyntaxTreeScope, "main") != 0) {
+        if(strcmp(tree->symbolType, "void") == 0) {
+          aux = generateInstruction("return", NULL, NULL, NULL);
+        } else {
+          if(strcmp(tree->left->node_type, "VARIABLE") == 0){
+            struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
+            aux = generateInstruction("return", s->id, NULL, NULL);
+          } else if(strcmp(tree->left->node_type, "VALUE") == 0){
+            aux = generateInstruction("return", tree->left->symbolName, NULL, NULL);
+          } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+            aux = generateAritmeticOperation(tree->left);
+            aux = concat(aux, generateInstruction("return", "$0", NULL, NULL));
+          }
         }
       }
       resolveSyntaxTreeScope = "GLOBAL";
@@ -2856,7 +2858,7 @@ char* generateAritmeticOperation(struct node* tree) {
 }
 
 void generateCodeInTac(FILE *tacFile, struct node* tree) {
-  fputs(".code\ncall main\n", tacFile);
+  fputs(".code\njump main\n", tacFile);
   resolveSyntaxTree(tacFile, tree);
 }
 

@@ -2,7 +2,7 @@
 int a_func_VARIABLE
 int a_main_VARIABLE
 .code
-call main
+jump main
 func:
 pop a_func_VARIABLE
 println a_func_VARIABLE
@@ -12,4 +12,3 @@ mov a_main_VARIABLE, 2
 param 1
 call func
 println a_main_VARIABLE
-return
