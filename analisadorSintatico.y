@@ -860,30 +860,19 @@ char* generateParmasInstruction(struct node* tree, char* aux, int* paramCounter)
       if(tree->left != NULL) {
         if(strcmp(tree->left->node_type, "PARAMS") == 0) {
           aux = concat(aux, generateParmasInstruction(tree->left, aux, paramCounter));
-        } else if(strcmp(tree->left->node_type, "VALUE") == 0) {
-          aux = concat(aux, generateInstruction("param", tree->left->symbolName, NULL, NULL));
-          *paramCounter++;
-        } else if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
-          struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
-          aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
+        } else if(strcmp(tree->left->node_type, "VALUE") == 0 || strcmp(tree->left->node_type, "VARIABLE") == 0) {
+          aux = concat(aux, generateInstruction("param", getValueOrVariable(tree->left), NULL, NULL));
           *paramCounter++;
         }
       }
       if(tree->right != NULL) {
-        if(strcmp(tree->right->node_type, "VALUE") == 0) {
-          aux = concat(aux, generateInstruction("param", tree->right->symbolName, NULL, NULL));
-          *paramCounter++;
-        } else if(strcmp(tree->right->node_type, "VARIABLE") == 0) {
-          struct s_table_entry *s = find_symbol_in_table(tree->right->symbolName, resolveSyntaxTreeScope, tree->right->node_type);
-          aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
+        if(strcmp(tree->right->node_type, "VALUE") == 0 || strcmp(tree->right->node_type, "VARIABLE") == 0) {
+          aux = concat(aux, generateInstruction("param", getValueOrVariable(tree->right), NULL, NULL));
           *paramCounter++;
         }
       }
-    } else if(strcmp(tree->node_type, "VALUE") == 0) {
-      aux = concat(aux, generateInstruction("param", tree->symbolName, NULL, NULL));
-    } else if(strcmp(tree->node_type, "VARIABLE") == 0) {
-      struct s_table_entry *s = find_symbol_in_table(tree->symbolName, resolveSyntaxTreeScope, tree->node_type);
-      aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
+    } else if(strcmp(tree->node_type, "VALUE") == 0 || strcmp(tree->node_type, "VARIABLE") == 0) {
+      aux = concat(aux, generateInstruction("param", getValueOrVariable(tree), NULL, NULL));
     }
   }
   return aux;
@@ -907,11 +896,8 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
     } else if(strcmp(tree->node_type, "OPERATOR") == 0) {
       if(strcmp(tree->symbolName, "=") == 0) {
         struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
-        if(strcmp(tree->right->node_type, "VALUE") == 0) {
-          aux = generateInstruction("mov", s->id, tree->right->symbolName, NULL);
-        } else if(strcmp(tree->right->node_type, "VARIABLE") == 0) {
-          struct s_table_entry *s2 = find_symbol_in_table(tree->right->symbolName, resolveSyntaxTreeScope, tree->right->node_type);
-          aux = generateInstruction("mov", s->id, s2->id, NULL);
+        if(strcmp(tree->right->node_type, "VALUE") == 0 || strcmp(tree->right->node_type, "VARIABLE") == 0) {
+          aux = generateInstruction("mov", s->id, getValueOrVariable(tree->right), NULL);
         } else if(strcmp(tree->right->node_type, "OPERATOR") == 0) {
           aux = generateAritmeticOperation(tree->right);
           aux = concat(aux, generateInstruction("mov", s->id, "$0", NULL));
@@ -925,11 +911,8 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         if(strcmp(tree->symbolType, "void") == 0) {
           aux = generateInstruction("return", NULL, NULL, NULL);
         } else {
-          if(strcmp(tree->left->node_type, "VARIABLE") == 0){
-            struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
-            aux = generateInstruction("return", s->id, NULL, NULL);
-          } else if(strcmp(tree->left->node_type, "VALUE") == 0){
-            aux = generateInstruction("return", tree->left->symbolName, NULL, NULL);
+          if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0){
+            aux = generateInstruction("return", getValueOrVariable(tree->left), NULL, NULL);
           } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
             aux = generateAritmeticOperation(tree->left);
             aux = concat(aux, generateInstruction("return", "$0", NULL, NULL));
@@ -981,7 +964,15 @@ char* getValueOrVariable(struct node* tree) {
     struct s_table_entry *s = find_symbol_in_table(tree->symbolName, resolveSyntaxTreeScope, tree->node_type);
     return s->id;
   } else if(strcmp(tree->node_type, "VALUE") == 0){
-    return tree->symbolName;
+    if(strcmp(tree->symbolType, "bool") == 0) {
+      if(strcmp(tree->symbolName, "true") == 0) {
+        return "1";
+      } else {
+        return "0";
+      }
+    } else {
+      return tree->symbolName;
+    }
   }
   return "";
 }
