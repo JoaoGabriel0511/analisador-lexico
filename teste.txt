@@ -1,9 +1,10 @@
-int sum(int a, int b, int c) {
-  return a + b + c;
+void func(int a) {
+  write(a);
 }
 
 void main () {
   int a;
-  sum(1, 2, 3);
+  a = 2;
+  func(1);
   write(a);
 }
