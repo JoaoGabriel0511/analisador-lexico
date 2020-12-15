@@ -2775,11 +2775,8 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
       resolveSyntaxTreeScope = "GLOBAL";
     } else if(strcmp(tree->node_type, "IO") == 0) {
       if(strcmp(tree->right->symbolName, "write") == 0) {
-        if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
-          struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
-          aux = generateInstruction("println", s->id, NULL, NULL);
-        } else if(strcmp(tree->left->node_type, "VALUE") == 0) {
-          aux = generateInstruction("println", tree->left->symbolName, NULL, NULL);
+        if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0) {
+          aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
         }
       }
     } else if(strcmp(tree->node_type, "CALL") == 0) {
@@ -2802,12 +2799,16 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
 char* generateOperator(char* operator) {
   if(strcmp(operator, "+") == 0) {
     return "add ";
-  } else if(strcmp(operator, "-") == 0){
+  } else if(strcmp(operator, "-") == 0) {
     return "sub ";
-  } else if(strcmp(operator, "*") == 0){
+  } else if(strcmp(operator, "*") == 0) {
     return "mul ";
-  } else if(strcmp(operator, "/") == 0){
+  } else if(strcmp(operator, "/") == 0) {
     return "div ";
+  } else if(strcmp(operator, "&&") == 0) {
+    return "and ";
+  } else if(strcmp(operator, "||") == 0) {
+    return "or ";
   }
   return "";
 }
