@@ -2708,26 +2708,35 @@ char* generateInstruction(char* instruction, char* arg1, char* arg2, char* arg3)
 }
 
 char* generateParmasInstruction(struct node* tree, char* aux, int* paramCounter) {
-  if(tree->left != NULL) {
-    if(strcmp(tree->left->node_type, "PARAMS") == 0) {
-      aux = concat(aux, generateParmasInstruction(tree->left, aux, paramCounter));
-    } else if(strcmp(tree->left->node_type, "VALUE") == 0) {
-      aux = concat(aux, generateInstruction("param", tree->left->symbolName, NULL, NULL));
-      *paramCounter++;
-    } else if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
-      struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
+  if(tree != NULL) {
+    if(strcmp(tree->node_type, "PARAMS") == 0) {
+      if(tree->left != NULL) {
+        if(strcmp(tree->left->node_type, "PARAMS") == 0) {
+          aux = concat(aux, generateParmasInstruction(tree->left, aux, paramCounter));
+        } else if(strcmp(tree->left->node_type, "VALUE") == 0) {
+          aux = concat(aux, generateInstruction("param", tree->left->symbolName, NULL, NULL));
+          *paramCounter++;
+        } else if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
+          struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
+          aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
+          *paramCounter++;
+        }
+      }
+      if(tree->right != NULL) {
+        if(strcmp(tree->right->node_type, "VALUE") == 0) {
+          aux = concat(aux, generateInstruction("param", tree->right->symbolName, NULL, NULL));
+          *paramCounter++;
+        } else if(strcmp(tree->right->node_type, "VARIABLE") == 0) {
+          struct s_table_entry *s = find_symbol_in_table(tree->right->symbolName, resolveSyntaxTreeScope, tree->right->node_type);
+          aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
+          *paramCounter++;
+        }
+      }
+    } else if(strcmp(tree->node_type, "VALUE") == 0) {
+      aux = concat(aux, generateInstruction("param", tree->symbolName, NULL, NULL));
+    } else if(strcmp(tree->node_type, "VARIABLE") == 0) {
+      struct s_table_entry *s = find_symbol_in_table(tree->symbolName, resolveSyntaxTreeScope, tree->node_type);
       aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
-      *paramCounter++;
-    }
-  }
-  if(tree->right != NULL) {
-    if(strcmp(tree->right->node_type, "VALUE") == 0) {
-      aux = concat(aux, generateInstruction("param", tree->right->symbolName, NULL, NULL));
-      *paramCounter++;
-    } else if(strcmp(tree->right->node_type, "VARIABLE") == 0) {
-      struct s_table_entry *s = find_symbol_in_table(tree->right->symbolName, resolveSyntaxTreeScope, tree->right->node_type);
-      aux = concat(aux, generateInstruction("param", s->id, NULL, NULL));
-      *paramCounter++;
     }
   }
   return aux;
@@ -2789,16 +2798,13 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         }
       }
     } else if(strcmp(tree->node_type, "CALL") == 0) {
-      printf("ola\n");
       int paramCounter = 0;
       aux = generateParmasInstruction(tree->left, "", &paramCounter);
-      printf("alo\n");
       aux = concat(aux, generateInstruction("call", tree->symbolName, paramCounter, NULL));
       if(assingReturn != NULL) {
         aux = concat(aux, generateInstruction("pop", assingReturn, NULL, NULL));
         assingReturn = NULL;
       }
-      printf("alo\n");
     }
     if(aux != NULL){
       fputs(aux, tacFile);

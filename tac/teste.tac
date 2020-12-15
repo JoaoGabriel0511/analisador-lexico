@@ -9,6 +9,7 @@ println a_func_VARIABLE
 return
 main:
 mov a_main_VARIABLE, 2
+param 1
 call func
 println a_main_VARIABLE
 return
