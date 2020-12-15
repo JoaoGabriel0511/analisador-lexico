@@ -1,10 +1,5 @@
-void func(int a) {
-  write(a);
-}
-
 void main () {
-  int a;
-  a = 2;
-  func(1);
+  bool a;
+  a = true;
   write(a);
 }
