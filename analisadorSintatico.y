@@ -52,6 +52,7 @@
   char* current_scope = "GLOBAL";
   char* resolveSyntaxTreeScope = "GLOBAL";
   char* assingReturn = NULL;
+  int labelCounter = 0;
 
   struct s_table_entry *symbol_table = NULL;
   struct semantic_error_msg *semantic_error_table = NULL;
@@ -89,6 +90,7 @@
   char* generateOperator(char* operator);
   char* getValueOrVariable(struct node* tree);
   char* generateParmasInstruction(struct node* tree, char* aux, int* paramCounter);
+  char* getLabel();
 %}
 
 %union {
@@ -826,7 +828,11 @@ void generateTableInTac(FILE *tacFile) {
   fputs(".table\n", tacFile);
   for(s=symbol_table; s != NULL; s=s->hh.next) {
     if(strcmp(s->entry_type, "FUNCTION") != 0){
-      strcpy(aux, s->var_type);
+      if(strcmp(s->var_type, "bool") == 0) {
+        strcpy(aux, "int");
+      } else {
+        strcpy(aux, s->var_type);
+      }
       strcat(aux, " ");
       strcat(aux, s->id);
       strcat(aux, "\n");
@@ -923,7 +929,20 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
     } else if(strcmp(tree->node_type, "IO") == 0) {
       if(strcmp(tree->right->symbolName, "write") == 0) {
         if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0) {
-          aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
+          if(strcmp(tree->left->symbolType, "bool") == 0) {
+            char* label = getLabel();
+            char* label2 = getLabel();
+            aux = generateInstruction("brz", label, getValueOrVariable(tree->left), NULL);
+            aux = concat(aux, generateInstruction("println", "\"true\"", NULL, NULL));
+            aux = concat(aux, generateInstruction("jump", label2, NULL, NULL));
+            aux = concat(aux, label);
+            aux = concat(aux, ":\n");
+            aux = concat(aux, generateInstruction("println", "\"false\"", NULL, NULL));
+            aux = concat(aux, label2);
+            aux = concat(aux, ":\n");
+          } else {
+            aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
+          }
         }
       }
     } else if(strcmp(tree->node_type, "CALL") == 0) {
@@ -941,6 +960,23 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
     resolveSyntaxTree(tacFile, tree->left);
     resolveSyntaxTree(tacFile, tree->right);
   }
+}
+
+char* getLabel() {
+  int digitsCounter = 0;
+  int counter = labelCounter;
+  if(counter == 0) {
+    digitsCounter = 1;
+  } else {
+    while(counter != 0) {
+      digitsCounter++;
+      counter = counter/10;
+    }
+  }
+  char* label = malloc(digitsCounter * sizeof(char));
+  sprintf(label, "L%d", labelCounter);
+  labelCounter++;
+  return label;
 }
 
 char* generateOperator(char* operator) {
