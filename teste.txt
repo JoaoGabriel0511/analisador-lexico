@@ -4,4 +4,5 @@ int sum(int a, int b) {
 void main() {
   int i;
   i = sum(2, 2) + sum(2, 2);
+  write(i);
 }

@@ -26,3 +26,4 @@ call sum
 param 2
 param 2
 call sum
+println i_main_VARIABLE
