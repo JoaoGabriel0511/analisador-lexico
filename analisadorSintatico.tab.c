@@ -2834,6 +2834,10 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
       if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0) {
         aux = generateInstruction("brz", label, getValueOrVariable(tree->left), NULL);
         fputs(aux, tacFile);
+      } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+        aux = generateAritmeticOperation(tree->left);
+        aux = concat(aux, generateInstruction("brz", label, "$0", NULL));
+        fputs(aux, tacFile);
       }
       if(tree->right->right == NULL) {
         //Soh if

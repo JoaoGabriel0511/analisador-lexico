@@ -1,7 +1,7 @@
 void main () {
   bool a;
   a = true;
-  if(a) {
+  if(a || false) {
     write(true);
   } else {
     write(false);

@@ -4,7 +4,8 @@ int a_main_VARIABLE
 jump main
 main:
 mov a_main_VARIABLE, 1
-brz L0, a_main_VARIABLE
+or $0, 0, a_main_VARIABLE
+brz L0, $0
 brz L2, 1
 print 't'
 print 'r'
