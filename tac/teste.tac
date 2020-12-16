@@ -5,19 +5,35 @@ jump main
 main:
 mov a_main_VARIABLE, 0
 brz L0, a_main_VARIABLE
-brz L1, 1
+brz L2, 1
 print 't'
 print 'r'
 print 'u'
 print 'e'
-jump L2
-L1:
+jump L3
+L2:
 print 'f'
 print 'a'
 print 'l'
 print 's'
 print 'e'
-L2:
+L3:
 println
+jump L1
 L0:
+brz L4, 0
+print 't'
+print 'r'
+print 'u'
+print 'e'
+jump L5
+L4:
+print 'f'
+print 'a'
+print 'l'
+print 's'
+print 'e'
+L5:
+println
+L1:
 println

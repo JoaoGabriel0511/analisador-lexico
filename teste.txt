@@ -3,5 +3,7 @@ void main () {
   a = false;
   if(a) {
     write(true);
+  } else {
+    write(false);
   }
 }

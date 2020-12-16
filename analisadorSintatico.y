@@ -976,14 +976,24 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         aux = generateInstruction("brz", label, getValueOrVariable(tree->left), NULL);
         fputs(aux, tacFile);
       }
-      //Soh if
       if(tree->right->right == NULL) {
+        //Soh if
         resolveSyntaxTree(tacFile, tree->right->left);
         aux = concat(label, ":\n");
         aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
         fputs(aux, tacFile);
       } else {
-        // if com else
+        //if com else
+        char* label2 = getLabel();
+        resolveSyntaxTree(tacFile, tree->right->left);
+        aux = generateInstruction("jump", label2, NULL, NULL);
+        aux = concat(aux, label);
+        aux = concat(aux, ":\n");
+        fputs(aux, tacFile);
+        resolveSyntaxTree(tacFile, tree->right->right);
+        aux = concat(label2, ":\n");
+        aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+        fputs(aux, tacFile);
       }
     }
     if(strcmp(tree->node_type, "CONDITIONAL") != 0) {
