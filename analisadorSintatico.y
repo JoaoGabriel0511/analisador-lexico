@@ -933,14 +933,21 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
             char* label = getLabel();
             char* label2 = getLabel();
             aux = generateInstruction("brz", label, getValueOrVariable(tree->left), NULL);
-            aux = concat(aux, generateInstruction("println", "\'T\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'t\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'r\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'u\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'e\'", NULL, NULL));
             aux = concat(aux, generateInstruction("jump", label2, NULL, NULL));
             aux = concat(aux, label);
             aux = concat(aux, ":\n");
-            aux = concat(aux, generateInstruction("println", "\'F\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'f\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'a\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'l\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'s\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'e\'", NULL, NULL));
             aux = concat(aux, label2);
             aux = concat(aux, ":\n");
-            aux = concat(aux, generateInstruction("print", NULL, NULL, NULL));
+            aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
           } else {
             aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
           }
