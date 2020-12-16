@@ -3,7 +3,7 @@ int a_main_VARIABLE
 .code
 jump main
 main:
-mov a_main_VARIABLE, 1
+mov a_main_VARIABLE, 0
 brz L0, a_main_VARIABLE
 brz L1, 1
 print 't'
