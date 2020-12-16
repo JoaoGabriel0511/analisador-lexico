@@ -1,6 +1,6 @@
 void main () {
   bool a;
-  a = false;
+  a = true;
   if(a) {
     write(true);
   } else {
