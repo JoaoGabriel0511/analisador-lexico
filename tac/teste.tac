@@ -13,3 +13,4 @@ mov i_main_VARIABLE, $0
 jump L0
 L1:
 println
+println i_main_VARIABLE
