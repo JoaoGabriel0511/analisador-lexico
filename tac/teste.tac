@@ -5,8 +5,7 @@ jump main
 main:
 mov i_main_VARIABLE, 5
 L0:
-seq $0, 5, i_main_VARIABLE
-brz L1, $0
+brz L1
 println i_main_VARIABLE
 add $0, 1, i_main_VARIABLE
 mov i_main_VARIABLE, $0
