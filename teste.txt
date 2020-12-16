@@ -1,9 +1,7 @@
 void main () {
   int i;
+  int j;
   i = 5;
-  while(true) {
-    write(i);
-    i = i + 1;
-  }
-  write(i);
+  read(j);
+  write(i+j);
 }

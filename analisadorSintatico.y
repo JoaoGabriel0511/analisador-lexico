@@ -961,6 +961,17 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
           } else {
             aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
           }
+        } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+          aux = generateAritmeticOperation(tree->left);
+          aux = concat(aux, generateInstruction("println", "$0", NULL, NULL));
+        }
+      } else if(strcmp(tree->right->symbolName, "read") == 0) {
+        if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
+          if(strcmp(tree->left->symbolType, "int") == 0) {
+            aux = generateInstruction("scani", getValueOrVariable(tree->left), NULL, NULL);
+          } else if(strcmp(tree->left->symbolType, "float") == 0) {
+            aux = generateInstruction("scanf", getValueOrVariable(tree->left), NULL, NULL);
+          }
         }
       }
     } else if(strcmp(tree->node_type, "CALL") == 0) {
