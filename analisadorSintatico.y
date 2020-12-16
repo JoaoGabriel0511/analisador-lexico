@@ -1105,26 +1105,56 @@ char* getValueOrVariable(struct node* tree) {
 char* generateAritmeticOperation(struct node* tree) {
   char *aux = "";
   if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
-    aux = generateAritmeticOperation(tree->left);
+    char* op = "";
+    if(strcmp(tree->right->node_type, "CALL") == 0) {
+      int paramCounter = 0;
+      aux = concat(aux, generateParmasInstruction(tree->right->left, "", &paramCounter));
+      aux = concat(aux, generateInstruction("call", tree->right->symbolName, paramCounter, NULL));
+      aux = concat(aux, generateInstruction("pop", "$0", NULL, NULL));
+      op = "$0";
+    } else {
+      op = getValueOrVariable(tree->right);
+    }
+    aux = concat(aux, generateAritmeticOperation(tree->left));
     aux = concat(aux, generateOperator(tree->symbolName));
     if(strcmp(tree->symbolName, "<") == 0 || strcmp(tree->symbolName, "<=") == 0) {
       aux = concat(aux, "$0, ");
-      aux = concat(aux, getValueOrVariable(tree->right));
+      aux = concat(aux, op);
       aux = concat(aux, ", $0");
     } else {
       aux = concat(aux, "$0, $0, ");
-      aux = concat(aux, getValueOrVariable(tree->right));
+      aux = concat(aux, op);
     }
     aux = concat(aux, "\n");
   } else {
-    aux = generateOperator(tree->symbolName);
+    char* opRight = "";
+    char* opLeft = "";
+    if(strcmp(tree->right->node_type, "CALL") == 0) {
+      int paramCounter = 0;
+      aux = concat(aux, generateParmasInstruction(tree->right->left, "", &paramCounter));
+      aux = concat(aux, generateInstruction("call", tree->right->symbolName, paramCounter, NULL));
+      aux = concat(aux, generateInstruction("pop", "$0", NULL, NULL));
+      opRight = "$0";
+    } else {
+      opRight = getValueOrVariable(tree->right);
+    }
+    if(strcmp(tree->left->node_type, "CALL") == 0) {
+      int paramCounter = 0;
+      aux = concat(aux, generateParmasInstruction(tree->left->left, "", &paramCounter));
+      aux = concat(aux, generateInstruction("call", tree->left->symbolName, paramCounter, NULL));
+      aux = concat(aux, generateInstruction("pop", "$1", NULL, NULL));
+      opLeft = "$1";
+    } else {
+      opLeft = getValueOrVariable(tree->left);
+    }
+    aux = concat(aux, generateOperator(tree->symbolName));
     aux = concat(aux, "$0, ");
     if(strcmp(tree->symbolName, "<") == 0 || strcmp(tree->symbolName, "<=") == 0) {
-      aux = concat(aux, concat(getValueOrVariable(tree->left), ", "));
-      aux = concat(aux, getValueOrVariable(tree->right));
+      aux = concat(aux, concat(opLeft, ", "));
+      aux = concat(aux, opRight);
     } else {
-      aux = concat(aux, concat(getValueOrVariable(tree->right), ", "));
-      aux = concat(aux, getValueOrVariable(tree->left));
+      aux = concat(aux, concat(opRight, ", "));
+      aux = concat(aux, opLeft);
     }
     aux = concat(aux, "\n");
   }

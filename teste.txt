@@ -1,7 +1,7 @@
-void main () {
+int sum(int a, int b) {
+  return a + b;
+}
+void main() {
   int i;
-  int j;
-  i = 5;
-  read(j);
-  write(i+j);
+  i = sum(2, 2) + sum(2, 2);
 }
