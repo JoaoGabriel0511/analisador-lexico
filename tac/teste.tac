@@ -3,9 +3,9 @@ int i_main_VARIABLE
 .code
 jump main
 main:
-mov i_main_VARIABLE, 0
+mov i_main_VARIABLE, 5
 L0:
-slt $0, i_main_VARIABLE, 5
+seq $0, 5, i_main_VARIABLE
 brz L1, $0
 println i_main_VARIABLE
 add $0, 1, i_main_VARIABLE
