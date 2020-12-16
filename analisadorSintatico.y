@@ -99,7 +99,7 @@
 }
 
 %type <node> prog declaration declaration_list var_declaration func_declaration param params params_list
-%type <node> statement_list compound_statement statement
+%type <node> statement_list compound_statement statement compound
 %type <node> expression_statement conditional_statement declaration_statement io_statement iteration_statement return_statement assing_statement vector_statement
 %type <node> expression var simple_expression op_expression call args arg_list
 %type <node> vector_param relop operators factor
@@ -223,6 +223,15 @@ compound_statement:
   }
 ;
 
+compound:
+  OPEN_CURLY statement_list CLOSE_CURLY {
+    printf("compound <- { statement_list }\n");
+    struct node* aux = add_regular_node("COMPOUND", $2, NULL);
+    aux->symbolType = NULL;
+    $$ = aux;
+  }
+;
+
 statement_list:
   statement_list statement {
     printf("statement_list <- statement_list statement\n");
@@ -281,21 +290,21 @@ expression_statement:
 ;
 
 conditional_statement:
-  IF OPEN_PARENTESES simple_expression CLOSE_PARENTESES compound_statement {
-    printf("conditional_statement <- if(expression)compound_statement\n");
+  IF OPEN_PARENTESES simple_expression CLOSE_PARENTESES compound {
+    printf("conditional_statement <- if(expression)compound\n");
     struct node *aux = add_regular_node("STATEMENT", $5, NULL);
     $$ = add_regular_node("CONDITIONAL", $3, aux);
   }
-  | IF OPEN_PARENTESES simple_expression CLOSE_PARENTESES compound_statement ELSE compound_statement {
-    printf("conditional_statement <- if(expression)compound_statement eles compund_statement\n");
+  | IF OPEN_PARENTESES simple_expression CLOSE_PARENTESES compound ELSE compound {
+    printf("conditional_statement <- if(expression)compound_statement eles compund\n");
     struct node *aux = add_regular_node("STATEMENT", $5, $7);
     $$ = add_regular_node("CONDITIONAL", $3, aux);
   }
 ;
 
 iteration_statement:
-  WHILE OPEN_PARENTESES simple_expression CLOSE_PARENTESES compound_statement {
-    printf("iteration_statement <- while(expression)compound_statement\n");
+  WHILE OPEN_PARENTESES simple_expression CLOSE_PARENTESES compound {
+    printf("iteration_statement <- while(expression)compound\n");
     $$ = add_regular_node("ITERATOR", $3, $5);
   }
 ;
@@ -961,12 +970,29 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         aux = concat(aux, generateInstruction("pop", assingReturn, NULL, NULL));
         assingReturn = NULL;
       }
+    } else if(strcmp(tree->node_type, "CONDITIONAL") == 0) {
+      char* label = getLabel();
+      if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0) {
+        aux = generateInstruction("brz", label, getValueOrVariable(tree->left), NULL);
+        fputs(aux, tacFile);
+      }
+      //Soh if
+      if(tree->right->right == NULL) {
+        resolveSyntaxTree(tacFile, tree->right->left);
+        aux = concat(label, ":\n");
+        aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+        fputs(aux, tacFile);
+      } else {
+        // if com else
+      }
     }
-    if(aux != NULL){
-      fputs(aux, tacFile);
+    if(strcmp(tree->node_type, "CONDITIONAL") != 0) {
+      if(aux != NULL){
+        fputs(aux, tacFile);
+      }
+      resolveSyntaxTree(tacFile, tree->left);
+      resolveSyntaxTree(tacFile, tree->right);
     }
-    resolveSyntaxTree(tacFile, tree->left);
-    resolveSyntaxTree(tacFile, tree->right);
   }
 }
 

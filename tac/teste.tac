@@ -3,19 +3,21 @@ int a_main_VARIABLE
 .code
 jump main
 main:
-and $0, 0, 1
-mov a_main_VARIABLE, $0
+mov a_main_VARIABLE, 1
 brz L0, a_main_VARIABLE
+brz L1, 1
 print 't'
 print 'r'
 print 'u'
 print 'e'
-jump L1
-L0:
+jump L2
+L1:
 print 'f'
 print 'a'
 print 'l'
 print 's'
 print 'e'
-L1:
+L2:
+println
+L0:
 println

@@ -1,5 +1,7 @@
 void main () {
   bool a;
-  a = true && false;
-  write(a);
+  a = true;
+  if(a) {
+    write(true);
+  }
 }
