@@ -940,7 +940,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
             aux = concat(aux, generateInstruction("println", "\'F\'", NULL, NULL));
             aux = concat(aux, label2);
             aux = concat(aux, ":\n");
-            aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+            aux = concat(aux, generateInstruction("print", NULL, NULL, NULL));
           } else {
             aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
           }
