@@ -407,8 +407,9 @@ var:
 simple_expression:
   op_expression relop op_expression {
     printf("simple_expression <- op_expression relop op_expression\n");
-    struct node *aux = add_regular_node("EXPRESSION", $2, $3);
-    $$ = add_regular_node("EXPRESSION", $1, aux);
+    $2->right = $3;
+    $2->left = $1;
+    $$ = $2;
   }
   | op_expression {
     printf("simple_expression <- op_expression\n");
@@ -999,8 +1000,26 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
         fputs(aux, tacFile);
       }
+    } else if(strcmp(tree->node_type, "ITERATOR") == 0) {
+      char* label = getLabel();
+      char* label2 = getLabel();
+      aux = concat(label, ":\n");
+      if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0) {
+        aux = concat(aux, generateInstruction("brz", label2, NULL, NULL));
+        fputs(aux, tacFile);
+      } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+        aux = concat(aux, generateAritmeticOperation(tree->left));
+        aux = concat(aux, generateInstruction("brz", label2, "$0", NULL));
+        fputs(aux, tacFile);
+      }
+      resolveSyntaxTree(tacFile, tree->right);
+      aux = generateInstruction("jump", label, NULL, NULL);
+      aux = concat(aux, label2);
+      aux = concat(aux, ":\n");
+      aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+      fputs(aux, tacFile);
     }
-    if(strcmp(tree->node_type, "CONDITIONAL") != 0) {
+    if(strcmp(tree->node_type, "CONDITIONAL") != 0 && strcmp(tree->node_type, "ITERATOR") != 0) {
       if(aux != NULL){
         fputs(aux, tacFile);
       }
@@ -1040,6 +1059,16 @@ char* generateOperator(char* operator) {
     return "and ";
   } else if(strcmp(operator, "||") == 0) {
     return "or ";
+  } else if(strcmp(operator, ">") == 0) {
+    return "slt ";
+  } else if(strcmp(operator, "<") == 0) {
+    return "slt ";
+  } else if(strcmp(operator, "==") == 0) {
+    return "seq ";
+  } else if(strcmp(operator, ">=") == 0) {
+    return "sleq ";
+  } else if(strcmp(operator, "<=") == 0) {
+    return "sleq ";
   }
   return "";
 }
@@ -1067,14 +1096,25 @@ char* generateAritmeticOperation(struct node* tree) {
   if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
     aux = generateAritmeticOperation(tree->left);
     aux = concat(aux, generateOperator(tree->symbolName));
-    aux = concat(aux, "$0, $0, ");
-    aux = concat(aux, getValueOrVariable(tree->right));
+    if(strcmp(tree->symbolName, ">") == 0 || strcmp(tree->symbolName, ">=") == 0) {
+      aux = concat(aux, "$0, ");
+      aux = concat(aux, getValueOrVariable(tree->right));
+      aux = concat(aux, ", $0");
+    } else {
+      aux = concat(aux, "$0, $0, ");
+      aux = concat(aux, getValueOrVariable(tree->right));
+    }
     aux = concat(aux, "\n");
   } else {
     aux = generateOperator(tree->symbolName);
     aux = concat(aux, "$0, ");
-    aux = concat(aux, concat(getValueOrVariable(tree->right), ", "));
-    aux = concat(aux, getValueOrVariable(tree->left));
+    if(strcmp(tree->symbolName, ">") == 0 || strcmp(tree->symbolName, ">=") == 0) {
+      aux = concat(aux, concat(getValueOrVariable(tree->left), ", "));
+      aux = concat(aux, getValueOrVariable(tree->right));
+    } else {
+      aux = concat(aux, concat(getValueOrVariable(tree->right), ", "));
+      aux = concat(aux, getValueOrVariable(tree->left));
+    }
     aux = concat(aux, "\n");
   }
   return aux;

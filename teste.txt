@@ -1,9 +1,8 @@
 void main () {
-  bool a;
-  a = true;
-  if(a || false) {
-    write(true);
-  } else {
-    write(false);
+  int i;
+  i = 0;
+  while(i < 5) {
+    write(i);
+    i = i + 1;
   }
 }

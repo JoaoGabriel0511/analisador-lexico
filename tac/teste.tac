@@ -1,40 +1,15 @@
 .table
-int a_main_VARIABLE
+int i_main_VARIABLE
 .code
 jump main
 main:
-mov a_main_VARIABLE, 1
-or $0, 0, a_main_VARIABLE
-brz L0, $0
-brz L2, 1
-print 't'
-print 'r'
-print 'u'
-print 'e'
-jump L3
-L2:
-print 'f'
-print 'a'
-print 'l'
-print 's'
-print 'e'
-L3:
-println
-jump L1
+mov i_main_VARIABLE, 0
 L0:
-brz L4, 0
-print 't'
-print 'r'
-print 'u'
-print 'e'
-jump L5
-L4:
-print 'f'
-print 'a'
-print 'l'
-print 's'
-print 'e'
-L5:
-println
+slt $0, 5, i_main_VARIABLE
+brz L1, $0
+println i_main_VARIABLE
+add $0, 1, i_main_VARIABLE
+mov i_main_VARIABLE, $0
+jump L0
 L1:
 println
