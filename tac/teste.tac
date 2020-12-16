@@ -5,7 +5,7 @@ jump main
 main:
 mov i_main_VARIABLE, 5
 L0:
-brz L1
+brz L1, 1
 println i_main_VARIABLE
 add $0, 1, i_main_VARIABLE
 mov i_main_VARIABLE, $0

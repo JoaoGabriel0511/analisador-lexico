@@ -1005,7 +1005,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
       char* label2 = getLabel();
       aux = concat(label, ":\n");
       if(strcmp(tree->left->node_type, "VARIABLE") == 0 || strcmp(tree->left->node_type, "VALUE") == 0) {
-        aux = concat(aux, generateInstruction("brz", label2, NULL, NULL));
+        aux = concat(aux, generateInstruction("brz", label2, getValueOrVariable(tree->left), NULL));
         fputs(aux, tacFile);
       } else if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
         aux = concat(aux, generateAritmeticOperation(tree->left));
