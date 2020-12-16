@@ -2955,7 +2955,7 @@ char* generateAritmeticOperation(struct node* tree) {
   if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
     aux = generateAritmeticOperation(tree->left);
     aux = concat(aux, generateOperator(tree->symbolName));
-    if(strcmp(tree->symbolName, ">") == 0 || strcmp(tree->symbolName, ">=") == 0) {
+    if(strcmp(tree->symbolName, "<") == 0 || strcmp(tree->symbolName, "<=") == 0) {
       aux = concat(aux, "$0, ");
       aux = concat(aux, getValueOrVariable(tree->right));
       aux = concat(aux, ", $0");
@@ -2967,7 +2967,7 @@ char* generateAritmeticOperation(struct node* tree) {
   } else {
     aux = generateOperator(tree->symbolName);
     aux = concat(aux, "$0, ");
-    if(strcmp(tree->symbolName, ">") == 0 || strcmp(tree->symbolName, ">=") == 0) {
+    if(strcmp(tree->symbolName, "<") == 0 || strcmp(tree->symbolName, "<=") == 0) {
       aux = concat(aux, concat(getValueOrVariable(tree->left), ", "));
       aux = concat(aux, getValueOrVariable(tree->right));
     } else {
