@@ -7,8 +7,10 @@ main:
 mov $2, &i_main_VARIABLE
 mov $2[0], 12
 mov $2[1], 24
-mov j_main_VARIABLE[0], i_main_VARIABLE[0]
-mov j_main_VARIABLE[1], i_main_VARIABLE[1]
+mov $2, &j_main_VARIABLE
+mov $3, &i_main_VARIABLE
+mov $2[0], $3[0]
+mov $2[1], $3[1]
 mov $2, &i_main_VARIABLE
 mov $2, $2[0]
 print '<'

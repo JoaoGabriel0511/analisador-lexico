@@ -987,8 +987,10 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
               aux = concat(aux, generateInstruction("mov", concat("$2", "[0]"), x, NULL));
               aux = concat(aux, generateInstruction("mov", concat("$2", "[1]"), y, NULL));
             } else {
-              aux = generateInstruction("mov", concat(s->id, "[0]"), concat(getValueOrVariable(tree->right), "[0]"), NULL);
-              aux = concat(aux, generateInstruction("mov", concat(s->id, "[1]"), concat(getValueOrVariable(tree->right), "[1]"), NULL));
+              aux = generateInstruction("mov", "$2", concat("&", s->id), NULL);
+              aux = concat(aux, generateInstruction("mov", "$3", concat("&", getValueOrVariable(tree->right)), NULL));
+              aux = concat(aux, generateInstruction("mov", "$2[0]", "$3[0]", NULL));
+              aux = concat(aux, generateInstruction("mov", "$2[1]", "$3[1]", NULL));
             }
           } else {
             aux = generateInstruction("mov", s->id, getValueOrVariable(tree->right), NULL);
