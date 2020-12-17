@@ -1,8 +1,5 @@
 void main() {
   vector i;
-  i = <12, 24>;
-  vector j;
-  j = i;
+  i = <12, 24> + <1,2>;
   write(i);
-  write(j);
 }

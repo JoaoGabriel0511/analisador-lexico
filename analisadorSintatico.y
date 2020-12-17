@@ -97,7 +97,6 @@
   char* getY(char* vector);
   char* generateVectorAritmeticOperation(struct node* tree);
   char* generateGenericAritmeticOperation(struct node* tree);
-  char* getValueOrVariableVector(struct node* tree);
 %}
 
 %union {
@@ -984,8 +983,8 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
               char* x = getX(tree->right->symbolName);
               char* y = getY(tree->right->symbolName);
               aux = generateInstruction("mov", "$2", concat("&", s->id), NULL);
-              aux = concat(aux, generateInstruction("mov", concat("$2", "[0]"), x, NULL));
-              aux = concat(aux, generateInstruction("mov", concat("$2", "[1]"), y, NULL));
+              aux = concat(aux, generateInstruction("mov", "$2[0]", x, NULL));
+              aux = concat(aux, generateInstruction("mov", "$2[1]", y, NULL));
             } else {
               aux = generateInstruction("mov", "$2", concat("&", s->id), NULL);
               aux = concat(aux, generateInstruction("mov", "$3", concat("&", getValueOrVariable(tree->right)), NULL));
@@ -999,7 +998,13 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
           }
         } else if(strcmp(tree->right->node_type, "OPERATOR") == 0) {
           aux = generateAritmeticOperation(tree->right);
-          aux = concat(aux, generateInstruction("mov", s->id, "$0", NULL));
+          if(strcmp(tree->right->right->symbolType, "vector") == 0) {
+            aux = generateInstruction("mov", "$2", concat("&", s->id), NULL);
+            aux = concat(aux, generateInstruction("mov", "$2[0]", "$0", NULL));
+            aux = concat(aux, generateInstruction("mov", "$2[1]", "$1", NULL));
+          } else {
+            aux = concat(aux, generateInstruction("mov", s->id, "$0", NULL));
+          }
         } else if(strcmp(tree->right->node_type, "CALL") == 0) {
           struct s_table_entry *s2 = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
           assingReturn = s2->id;
@@ -1197,16 +1202,45 @@ char* getValueOrVariable(struct node* tree) {
   return "";
 }
 
-char* getValueOrVariableVector(struct node* tree) {
-
-}
-
 char* generateVectorAritmeticOperation(struct node* tree) {
   char* aux = "";
   if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
-    aux = getValueOrVariableVector(tree->right);
-  } else {
+    aux = concat(aux, generateVectorAritmeticOperation(tree->left));
+    aux = concat(aux, generateInstruction("mov", "$2", "$0", NULL));
+    aux = concat(aux, generateInstruction("mov", "$3", "$1", NULL));
+  } else if(strcmp(tree->left->node_type, "VALUE") == 0) {
+    removeChar(tree->left->symbolName, '<');
+    removeChar(tree->left->symbolName, '>');
+    removeChar(tree->left->symbolName, ' ');
+    char* x = getX(tree->left->symbolName);
+    char* y = getY(tree->left->symbolName);
+    aux = concat(aux, generateInstruction("mov", "$2", x, NULL));
+    aux = concat(aux, generateInstruction("mov", "$3", y, NULL));
+  } else if(strcmp(tree->left->node_type, "VARIABLE") == 0) {
+    aux = concat(aux, generateInstruction("mov", "$6", concat("&", getValueOrVariable(tree->left)), NULL));
+    aux = concat(aux, generateInstruction("mov", "$2", "$6[0]", NULL));
+    aux = concat(aux, generateInstruction("mov", "$3", "$6[1]", NULL));
   }
+  if(strcmp(tree->right->node_type, "VALUE") == 0) {
+    removeChar(tree->right->symbolName, '<');
+    removeChar(tree->right->symbolName, '>');
+    removeChar(tree->right->symbolName, ' ');
+    char* x = getX(tree->right->symbolName);
+    char* y = getY(tree->right->symbolName);
+    aux = concat(aux, generateInstruction("mov", "$4", x, NULL));
+    aux = concat(aux, generateInstruction("mov", "$5", y, NULL));
+  } else if(strcmp(tree->right->node_type, "VARIABLE") == 0){
+    aux = concat(aux, generateInstruction("mov", "$6", concat("&", getValueOrVariable(tree->right)), NULL));
+    aux = concat(aux, generateInstruction("mov", "$4", "$6[0]", NULL));
+    aux = concat(aux, generateInstruction("mov", "$5", "$6[1]", NULL));
+  }
+  aux = concat(aux, generateOperator(tree->symbolName));
+  aux = concat(aux, "$0, $2, $4");
+  aux = concat(aux, "\n");
+  aux = concat(aux, generateOperator(tree->symbolName));
+  aux = concat(aux, "$1, $3, $5");
+  aux = concat(aux, "\n");
+  return aux;
 }
 
 char* generateGenericAritmeticOperation(struct node* tree) {
@@ -1222,7 +1256,7 @@ char* generateGenericAritmeticOperation(struct node* tree) {
     } else {
       op = getValueOrVariable(tree->right);
     }
-    aux = concat(aux, generateAritmeticOperation(tree->left));
+    aux = concat(aux, generateGenericAritmeticOperation(tree->left));
     aux = concat(aux, generateOperator(tree->symbolName));
     if(strcmp(tree->symbolName, "<") == 0 || strcmp(tree->symbolName, "<=") == 0) {
       aux = concat(aux, "$0, ");
