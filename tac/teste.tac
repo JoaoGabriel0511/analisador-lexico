@@ -7,9 +7,12 @@ mov $2, &i_main_VARIABLE
 mov $2[0], 12
 mov $2[1], 24
 mov $2, &i_main_VARIABLE
+mov $2, $2[0]
 print '<'
-print $2[0]
+print $2
 print ','
-print $2[1]
+mov $2, &i_main_VARIABLE
+mov $2, $2[1]
+print $2
 print '>'
 println
