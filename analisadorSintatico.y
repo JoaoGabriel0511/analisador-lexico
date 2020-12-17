@@ -1034,6 +1034,15 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
             aux = concat(aux, label2);
             aux = concat(aux, ":\n");
             aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+          } else if(strcmp(tree->left->symbolType, "vector") == 0) {
+            char* var = getValueOrVariable(tree->left);
+            aux = generateInstruction("mov", "$2", concat("&", var), NULL);
+            aux = concat(aux, generateInstruction("print", "\'<\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "$2[0]", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\',\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "$2[1]", NULL, NULL));
+            aux = concat(aux, generateInstruction("print", "\'>\'", NULL, NULL));
+            aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
           } else {
             aux = generateInstruction("println", getValueOrVariable(tree->left), NULL, NULL);
           }

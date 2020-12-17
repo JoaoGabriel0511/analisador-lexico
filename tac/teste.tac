@@ -6,3 +6,10 @@ main:
 mov $2, &i_main_VARIABLE
 mov $2[0], 12
 mov $2[1], 24
+mov $2, &i_main_VARIABLE
+print '<'
+print $2[0]
+print ','
+print $2[1]
+print '>'
+println
