@@ -13,8 +13,8 @@ mov $2, $0
 mov $3, $1
 mov $4, 3
 mov $5, 4
-add $0, $2, $4
-add $1, $3, $5
+mul $0, $2, $4
+mul $1, $3, $5
 mov $2, &i_main_VARIABLE
 mov $2[0], $0
 mov $2[1], $1
