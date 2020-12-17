@@ -5,6 +5,7 @@
 %{
   #include <stdlib.h>
   #include <stdio.h>
+  #include <math.h>
   #include "uthash.h"
   #include "utlist.h"
   #define TAC_PATH "tac/"
@@ -91,6 +92,9 @@
   char* getValueOrVariable(struct node* tree);
   char* generateParmasInstruction(struct node* tree, char* aux, int* paramCounter);
   char* getLabel();
+  void removeChar(char *str, char garbage);
+  char* getX(char* vector);
+  char* getY(char* vector);
 %}
 
 %union {
@@ -541,6 +545,16 @@ arg_list:
 ;
 %%
 
+void removeChar(char *str, char garbage) {
+
+    char *src, *dst;
+    for (src = dst = str; *src != '\0'; src++) {
+        *dst = *src;
+        if (*dst != garbage) dst++;
+    }
+    *dst = '\0';
+}
+
 struct node * add_regular_node(char * node_type, struct node *left, struct node *right){
   struct node* node = (struct node*)calloc(1, sizeof(struct node));
   node->node_type = node_type;
@@ -840,11 +854,18 @@ void generateTableInTac(FILE *tacFile) {
     if(strcmp(s->entry_type, "FUNCTION") != 0){
       if(strcmp(s->var_type, "bool") == 0) {
         strcpy(aux, "int");
+        strcat(aux, " ");
+        strcat(aux, s->id);
+      } else if(strcmp(s->var_type, "vector") == 0) {
+        strcpy(aux, "int");
+        strcat(aux, " ");
+        strcat(aux, s->id);
+        strcat(aux, "[] = {0, 0}");
       } else {
         strcpy(aux, s->var_type);
+        strcat(aux, " ");
+        strcat(aux, s->id);
       }
-      strcat(aux, " ");
-      strcat(aux, s->id);
       strcat(aux, "\n");
       fputs(aux, tacFile);
     }
@@ -894,6 +915,45 @@ char* generateParmasInstruction(struct node* tree, char* aux, int* paramCounter)
   return aux;
 }
 
+char* getY(char* vector) {
+  int i = 0;
+  int flag = 0;
+  int size = 0;
+  while(vector[i] != '\0') {
+    if(flag == 1) {
+      size++;
+    }
+    if(vector[i] == ',') {
+      flag = 1;
+    }
+    i++;
+  }
+  char* result = (char*) malloc(1*sizeof(char));
+  int j = 0;
+  i--;
+  size--;
+  for(j = size; j >= 0; j--) {
+    result[j] = vector[i];
+    i--;
+  }
+  return result;
+}
+
+char* getX(char* vector) {
+  int i = 0;
+  while(vector[i] != ',') {
+    i++;
+  }
+  char* result = (char*) malloc(i*sizeof(char));
+  int j = 0;
+  while(i != 0) {
+    i--;
+    result[i] = vector[i];
+    j++;
+  }
+  return result;
+}
+
 void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
   char *aux = NULL;
   if(tree) {
@@ -913,7 +973,22 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
       if(strcmp(tree->symbolName, "=") == 0) {
         struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
         if(strcmp(tree->right->node_type, "VALUE") == 0 || strcmp(tree->right->node_type, "VARIABLE") == 0) {
-          aux = generateInstruction("mov", s->id, getValueOrVariable(tree->right), NULL);
+          if(strcmp(tree->right->symbolType, "vector") == 0) {
+            if(strcmp(tree->right->node_type, "VALUE") == 0) {
+              removeChar(tree->right->symbolName, '<');
+              removeChar(tree->right->symbolName, '>');
+              removeChar(tree->right->symbolName, ' ');
+              char* x = getX(tree->right->symbolName);
+              char* y = getY(tree->right->symbolName);
+              aux = generateInstruction("mov", concat(s->id, "[0]"), x, NULL);
+              aux = concat(aux, generateInstruction("mov", concat(s->id, "[1]"), y, NULL));
+            } else {
+              aux = generateInstruction("mov", concat(s->id, "[0]"), concat(getValueOrVariable(tree->right), "[0]"), NULL);
+              aux = concat(aux, generateInstruction("mov", concat(s->id, "[1]"), concat(getValueOrVariable(tree->right), "[1]"), NULL));
+            }
+          } else {
+            aux = generateInstruction("mov", s->id, getValueOrVariable(tree->right), NULL);
+          }
         } else if(strcmp(tree->right->node_type, "OPERATOR") == 0) {
           aux = generateAritmeticOperation(tree->right);
           aux = concat(aux, generateInstruction("mov", s->id, "$0", NULL));
@@ -996,7 +1071,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         //Soh if
         resolveSyntaxTree(tacFile, tree->right->left);
         aux = concat(label, ":\n");
-        aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+        aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
         fputs(aux, tacFile);
       } else {
         //if com else
@@ -1008,7 +1083,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         fputs(aux, tacFile);
         resolveSyntaxTree(tacFile, tree->right->right);
         aux = concat(label2, ":\n");
-        aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+        aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
         fputs(aux, tacFile);
       }
     } else if(strcmp(tree->node_type, "ITERATOR") == 0) {
@@ -1027,7 +1102,7 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
       aux = generateInstruction("jump", label, NULL, NULL);
       aux = concat(aux, label2);
       aux = concat(aux, ":\n");
-      aux = concat(aux, generateInstruction("println", NULL, NULL, NULL));
+      aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
       fputs(aux, tacFile);
     }
     if(strcmp(tree->node_type, "CONDITIONAL") != 0 && strcmp(tree->node_type, "ITERATOR") != 0) {

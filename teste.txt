@@ -1,8 +1,4 @@
-int sum(int a, int b) {
-  return a + b;
-}
 void main() {
-  int i;
-  i = sum(2, 2) + sum(2, 2);
-  write(i);
+  vector i;
+  i = <12, 24>;
 }
