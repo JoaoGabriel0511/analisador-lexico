@@ -95,6 +95,9 @@
   void removeChar(char *str, char garbage);
   char* getX(char* vector);
   char* getY(char* vector);
+  char* generateVectorAritmeticOperation(struct node* tree);
+  char* generateGenericAritmeticOperation(struct node* tree);
+  char* getValueOrVariableVector(struct node* tree);
 %}
 
 %union {
@@ -1190,7 +1193,19 @@ char* getValueOrVariable(struct node* tree) {
   return "";
 }
 
-char* generateAritmeticOperation(struct node* tree) {
+char* getValueOrVariableVector(struct node* tree) {
+
+}
+
+char* generateVectorAritmeticOperation(struct node* tree) {
+  char* aux = "";
+  if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
+    aux = getValueOrVariableVector(tree->right);
+  } else {
+  }
+}
+
+char* generateGenericAritmeticOperation(struct node* tree) {
   char *aux = "";
   if(strcmp(tree->left->node_type, "OPERATOR") == 0) {
     char* op = "";
@@ -1245,6 +1260,16 @@ char* generateAritmeticOperation(struct node* tree) {
       aux = concat(aux, opLeft);
     }
     aux = concat(aux, "\n");
+  }
+  return aux;
+}
+
+char* generateAritmeticOperation(struct node* tree) {
+  char *aux = "";
+  if(strcmp(tree->right->symbolType, "vector") == 0) {
+    aux = generateVectorAritmeticOperation(tree);
+  } else {
+    aux = generateGenericAritmeticOperation(tree);
   }
   return aux;
 }
