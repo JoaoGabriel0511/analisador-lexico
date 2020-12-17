@@ -9,8 +9,10 @@ mov $2[0], 12
 mov $2[1], 24
 mov $2, &j_main_VARIABLE
 mov $3, &i_main_VARIABLE
-mov $2[0], $3[0]
-mov $2[1], $3[1]
+mov $4, $3[0]
+mov $2[0], $4
+mov $4, $3[1]
+mov $2[1], $4
 mov $2, &i_main_VARIABLE
 mov $2, $2[0]
 print '<'
