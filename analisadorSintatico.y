@@ -433,8 +433,19 @@ relop:
 op_expression:
   op_expression operators factor {
     printf("op_expression <- op_expression operators factor\n");
+    struct node * node = NULL;
     $2->right = $3;
     $2->left = $1;
+    if((strcmp($2->symbolName, "*") == 0 || strcmp($2->symbolName, "/") == 0)) {
+      while(strcmp($2->left->node_type, "OPERATOR") == 0 && (strcmp($2->left->symbolName, "+") == 0 || strcmp($2->left->symbolName, "-"))) {
+        struct node * n = $2->left;
+        if(node == NULL) {
+          node = n;
+        }
+        $2->left = n->right;
+        n->right = $2;
+      }
+    }
     if($3->symbolType != NULL && $1->symbolType != NULL) {
       if(strcmp($1->symbolType, "int") == 0 && strcmp($3->symbolType, "float") == 0) {
         add_float_to_int_node($2, $3);
@@ -444,7 +455,11 @@ op_expression:
       }
       $2->symbolType = check_type_mismatch_error($2->left, $2->right);
     }
-    $$ = $2;
+    if(node == NULL) {
+      $$ = $2;
+    } else {
+      $$ = node;
+    }
   }
   | factor {
     printf("op_expression <- factor\n");
