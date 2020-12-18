@@ -3,14 +3,18 @@ int nro2;
 
 void funcao(int nro) {
     float nro2;
+    nro2 = 2;
+    nro = nro + nro2;
     write(nro);
 }
 
-void main(int nro3) {
+void main() {
     int nro4;
-    nro4 = nro3 + nro2;
+    int nro3;
+    nro3 = 5;
+    nro4 = nro3 + 4 * 5;
     if(true) {
         funcao(nro4);
     }
-    int nro5;
+    write(nro4);
 }

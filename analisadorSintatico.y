@@ -1371,7 +1371,7 @@ int main(int argc, char **argv) {
   printf("\n\n\n");
   print_s_table();
   print_semantic_erros();
-  generateTacFile(syntax_tree, "teste");
+  generateTacFile(syntax_tree, "out");
   yylex_destroy();
   return 0;
 }

@@ -25,3 +25,5 @@ coisa que a linguagem nao suporta.
 ## No arquivo teste_errado1_semantico.txt sao esperados dois tipos de erro o primeiro relacionado a falta de uma funcao main, e os outros dois relacionados a mismacth
 de tipos na operacao da linha 3, O arquivo teste_errado2_semantico.txt sao esperados dois tipos de erro semantico um mismacth de tipo no tipo passado para a funcao e um mismacth de tipo com o tipo de retorno da main.
 
+## Depois de compilado o codigo um arquivo tac/out.tac é gerado e pode ser excutado com a ferramenta tac.
+
