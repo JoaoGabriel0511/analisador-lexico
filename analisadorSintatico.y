@@ -993,7 +993,7 @@ void resolveSyntaxTree(struct node* tree) {
     } else if(strcmp(tree->node_type, "OPERATOR") == 0) {
       if(strcmp(tree->symbolName, "=") == 0) {
         struct s_table_entry *s = find_symbol_in_table(tree->left->symbolName, resolveSyntaxTreeScope, tree->left->node_type);
-        if(strcmp(tree->right->node_type, "VALUE") == 0 || strcmp(tree->right->node_type, "VARIABLE") == 0) {
+        if(strcmp(tree->right->node_type, "VALUE") == 0 || strcmp(tree->right->node_type, "VARIABLE") == 0 || strcmp(tree->right->node_type, "FLOATTOINT") == 0 || strcmp(tree->right->node_type, "INTTOFLOAT") == 0) {
           if(strcmp(tree->right->symbolType, "vector") == 0) {
             if(strcmp(tree->right->node_type, "VALUE") == 0) {
               removeChar(tree->right->symbolName, '<');
@@ -1147,6 +1147,12 @@ void resolveSyntaxTree(struct node* tree) {
       aux = concat(aux, label2);
       aux = concat(aux, ":\n");
       aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
+      fputs(aux, tacFile);
+    }
+    if(strcmp(tree->node_type, "CONDITIONAL") != 0 && strcmp(tree->node_type, "ITERATOR") != 0) {
+      if(aux != NULL){
+        fputs(aux, tacFile);
+      }
       resolveSyntaxTree(tree->left);
       resolveSyntaxTree(tree->right);
     }
