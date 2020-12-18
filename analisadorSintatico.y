@@ -57,6 +57,7 @@
 
   struct s_table_entry *symbol_table = NULL;
   struct semantic_error_msg *semantic_error_table = NULL;
+  FILE *tacFile = NULL;
 
   struct node* syntax_tree = NULL;
   struct node* add_regular_node(char * node_type, struct node *left, struct node *right);
@@ -79,14 +80,14 @@
   void print_semantic_erros();
   void add_semantic_error(char *msg);
   void check_main_not_declared_error();
-  void generateTableInTac(FILE *tacFile);
+  void generateTableInTac();
   char* check_type_mismatch_error(struct node* first_symbol, struct node* second_symbol);
   void check_params_mismatch_error(char * functionName, struct param * paramsList);
   void check_function_return_mismatch_error(char * functionName, char * return_type, char * function_type);
   struct s_table_entry* find_symbol_in_table(char* symbolName, char* scope, char* entry_type);
-  void resolveSyntaxTree(FILE *tacFile, struct node* tree);
+  void resolveSyntaxTree(struct node* tree);
   char* generateInstruction(char* instruction, char* arg1, char* arg2, char* arg3);
-  void generateCodeInTac(FILE *tacFile, struct node* tree);
+  void generateCodeInTac(struct node* tree);
   char* generateAritmeticOperation(struct node* tree);
   char* generateOperator(char* operator);
   char* getValueOrVariable(struct node* tree);
@@ -866,7 +867,7 @@ void add_semantic_error(char *msg) {
   DL_APPEND(semantic_error_table, s);
 }
 
-void generateTableInTac(FILE *tacFile) {
+void generateTableInTac() {
   struct s_table_entry* s;
   char aux[100];
   fputs(".table\n", tacFile);
@@ -974,7 +975,7 @@ char* getX(char* vector) {
   return result;
 }
 
-void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
+void resolveSyntaxTree(struct node* tree) {
   char *aux = NULL;
   if(tree) {
     if(strcmp(tree->node_type, "FUNCTION") == 0) {
@@ -1112,19 +1113,19 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
       }
       if(tree->right->right == NULL) {
         //Soh if
-        resolveSyntaxTree(tacFile, tree->right->left);
+        resolveSyntaxTree(tree->right->left);
         aux = concat(label, ":\n");
         aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
         fputs(aux, tacFile);
       } else {
         //if com else
         char* label2 = getLabel();
-        resolveSyntaxTree(tacFile, tree->right->left);
+        resolveSyntaxTree(tree->right->left);
         aux = generateInstruction("jump", label2, NULL, NULL);
         aux = concat(aux, label);
         aux = concat(aux, ":\n");
         fputs(aux, tacFile);
-        resolveSyntaxTree(tacFile, tree->right->right);
+        resolveSyntaxTree(tree->right->right);
         aux = concat(label2, ":\n");
         aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
         fputs(aux, tacFile);
@@ -1141,19 +1142,13 @@ void resolveSyntaxTree(FILE *tacFile, struct node* tree) {
         aux = concat(aux, generateInstruction("brz", label2, "$0", NULL));
         fputs(aux, tacFile);
       }
-      resolveSyntaxTree(tacFile, tree->right);
+      resolveSyntaxTree(tree->right);
       aux = generateInstruction("jump", label, NULL, NULL);
       aux = concat(aux, label2);
       aux = concat(aux, ":\n");
       aux = concat(aux, generateInstruction("nop", NULL, NULL, NULL));
-      fputs(aux, tacFile);
-    }
-    if(strcmp(tree->node_type, "CONDITIONAL") != 0 && strcmp(tree->node_type, "ITERATOR") != 0) {
-      if(aux != NULL){
-        fputs(aux, tacFile);
-      }
-      resolveSyntaxTree(tacFile, tree->left);
-      resolveSyntaxTree(tacFile, tree->right);
+      resolveSyntaxTree(tree->left);
+      resolveSyntaxTree(tree->right);
     }
   }
 }
@@ -1216,6 +1211,14 @@ char* getValueOrVariable(struct node* tree) {
     } else {
       return tree->symbolName;
     }
+  } else if(strcmp(tree->node_type, "FLOATTOINT") == 0) {
+    char* aux = generateInstruction("fltoint", "$7", getValueOrVariable(tree->right), NULL);
+    fputs(aux, tacFile);
+    return "$7";
+  } else if (strcmp(tree->node_type, "INTTOFLOAT") == 0) {
+    char* aux = generateInstruction("inttofl", "$7", getValueOrVariable(tree->right), NULL);
+    fputs(aux, tacFile);
+    return "$7";
   }
   return "";
 }
@@ -1330,21 +1333,20 @@ char* generateAritmeticOperation(struct node* tree) {
   return aux;
 }
 
-void generateCodeInTac(FILE *tacFile, struct node* tree) {
+void generateCodeInTac(struct node* tree) {
   fputs(".code\njump main\n", tacFile);
-  resolveSyntaxTree(tacFile, tree);
+  resolveSyntaxTree(tree);
 }
 
 void generateTacFile(struct node* tree, char* fileName) {
-  FILE* tacFile;
   char* filePath = concat(TAC_PATH, fileName);
   tacFile = fopen(concat(filePath, ".tac"), "w");
   if(tacFile == NULL) {
     printf("Falha ao criar tac file.\n");
     exit(EXIT_FAILURE);
   }
-  generateTableInTac(tacFile);
-  generateCodeInTac(tacFile, tree);
+  generateTableInTac();
+  generateCodeInTac(tree);
   fclose(tacFile);
   printf("Arquivo .tac gerado em %s\n", filePath);
 }

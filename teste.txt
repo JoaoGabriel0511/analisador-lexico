@@ -1,9 +1,5 @@
 void main() {
-  vector i;
-  i = <12, 24>;
-  vector j;
-  j = <1,2>;
-  vector h;
-  h = j + i;
-  write(h);
+  int i;
+  i = 1.2;
+  write(i);
 }
