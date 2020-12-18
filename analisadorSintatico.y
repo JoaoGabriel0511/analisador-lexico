@@ -444,6 +444,9 @@ op_expression:
         }
         $2->left = n->right;
         n->right = $2;
+        struct node * aux = n->right;
+        n->right = n->left;
+        n->left = aux;
       }
     }
     if($3->symbolType != NULL && $1->symbolType != NULL) {
